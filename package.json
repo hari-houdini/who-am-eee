@@ -1,0 +1,22 @@
+{
+  "name": "who-am-eee",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun --hot run index.ts",
+    "build": "rolldown -c"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/figlet": "^1.7.0",
+    "rolldown": "^1.1.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "figlet": "^1.11.0"
+  }
+}
