@@ -1,63 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bun</title>
-    <link rel="stylesheet" href="./global.css">
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&amp;family=Space+Mono:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./global.css">
+</head>
 
-  <body>
-    <h1>Bun!</h1>
+<body>
+  <h1>Bun!</h1>
 
-    <!-- TODO: replace with a template element -->
-    <template id="terminal-window-template">
-      <div data-win="hero" data-grav="1" data-rot="-0.5" data-screen-label="hero.exe"
-        style="align-self: center; width: 100%; max-width: 1040px; background: #0d0d0d; border: 1px solid #333; box-shadow: 12px 14px 0 rgba(57, 255, 20, 0.07), 0 0 0 1px #1a1a1a; position: relative;">
-        <div
-          style="display: flex; align-items: center; gap: 10px; background: #1c1c1c; padding: 11px 16px; border-bottom: 1px solid #333; font-size: 13px; cursor: grab; touch-action: none; user-select: none;">
-          <span style="width: 11px; height: 11px; background: #ff2e00; display: inline-block;"></span>
-          <span style="width: 11px; height: 11px; background: #ffe14d; display: inline-block;"></span>
-          <span style="width: 11px; height: 11px; background: #39ff14; display: inline-block;"></span>
-          <span style="margin-left: 10px; color: #aaa;">hero.exe — Not Responding</span>
-        </div>
-        <div style="padding: 42px 32px 0; position: relative;">
-          <div style="font-size: 14px; color: #39ff14; margin-bottom: 16px;">&gt; portfolio.load() &nbsp;... &nbsp;ERROR: succeeded unexpectedly</div>
-          {{ heroHeadline }}
-          <div style="font-size: 15px; color: #888; margin-top: 16px;">// escape artist. of deadlines, mostly. <span
-              style="display: inline-block; width: 9px; height: 17px; background: #39ff14; vertical-align: middle; animation: blink 1s steps(1) infinite;"></span>
+  <div ref="{{ rootRef }}"
+    style="font-family: 'Space Mono', monospace; color: #e8ffe8; min-height: 100vh; background-image: linear-gradient(rgba(57, 255, 20, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(57, 255, 20, 0.035) 1px, transparent 1px); background-size: 48px 48px;">
+
+    <div
+      style="max-width: 1280px; margin: 0 auto; padding: 64px 20px 220px; display: flex; flex-direction: column; gap: 84px;">
+
+      <!-- TODO: replace with a template element -->
+      <template id="terminal-window-template">
+        <div data-win="hero" data-grav="1" data-rot="-0.5" data-screen-label="hero.exe"
+          style="align-self: center; width: 100%; max-width: 1040px; background: #0d0d0d; border: 1px solid #333; box-shadow: 12px 14px 0 rgba(57, 255, 20, 0.07), 0 0 0 1px #1a1a1a; position: relative;">
+          <div
+            style="display: flex; align-items: center; gap: 10px; background: #1c1c1c; padding: 11px 16px; border-bottom: 1px solid #333; font-size: 13px; cursor: grab; touch-action: none; user-select: none;">
+            <span style="width: 11px; height: 11px; background: #ff2e00; display: inline-block;"></span>
+            <span style="width: 11px; height: 11px; background: #ffe14d; display: inline-block;"></span>
+            <span style="width: 11px; height: 11px; background: #39ff14; display: inline-block;"></span>
+            <span style="margin-left: 10px; color: #aaa;">hero.exe — Not Responding</span>
+          </div>
+          <div style="padding: 42px 32px 0; position: relative;">
+            <div style="font-size: 14px; color: #39ff14; margin-bottom: 16px;">
+              &gt; portfolio.load() &nbsp;... &nbsp;ERROR:succeeded unexpectedly
+            </div>
+            {{ heroHeadline }}
+            <div style="font-size: 15px; color: #888; margin-top: 16px;">// escape artist. of deadlines, mostly. <span
+                style="display: inline-block; width: 9px; height: 17px; background: #39ff14; vertical-align: middle; animation: blink 1s steps(1) infinite;"></span>
+            </div>
+            <div
+              style="margin: 34px 0 38px; background: #d4d0c8; color: #111; max-width: 430px; border: 2px solid #fff; border-right-color: #555; border-bottom-color: #555; box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.6); font-size: 13px;">
+              <div
+                style="background: #000082; color: #fff; padding: 6px 10px; display: flex; justify-content: space-between;">
+                <span>Fatal recruitment error</span><span>✕</span>
+              </div>
+              <div style="padding: 15px 14px 13px; display: flex; gap: 12px; align-items: flex-start;">
+                <div style="font-size: 25px; line-height: 1;">⚠️</div>
+                <div>This portfolio has encountered a visitor.<br>Hire anyway?</div>
+              </div>
+              <div style="display: flex; gap: 10px; justify-content: flex-end; padding: 0 14px 14px;">
+                <div data-mag="1"
+                  style="border: 2px solid #555; background: #d4d0c8; padding: 6px 16px; cursor: pointer; min-width: 92px; text-align: center;">
+                  {{ heroLeftLabel }}
+                </div>
+                <div data-mag="1"
+                  style="border: 2px solid #555; background: #d4d0c8; padding: 6px 16px; cursor: pointer; min-width: 92px; text-align: center; outline: 1px dotted #000; outline-offset: -5px;">
+                  {{ heroRightLabel }}
+                </div>
+              </div>
+            </div>
           </div>
           <div
-            style="margin: 34px 0 38px; background: #d4d0c8; color: #111; max-width: 430px; border: 2px solid #fff; border-right-color: #555; border-bottom-color: #555; box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.6); font-size: 13px;">
-            <div style="background: #000082; color: #fff; padding: 6px 10px; display: flex; justify-content: space-between;">
-              <span>Fatal recruitment error</span><span>✕</span>
-            </div>
-            <div style="padding: 15px 14px 13px; display: flex; gap: 12px; align-items: flex-start;">
-              <div style="font-size: 25px; line-height: 1;">⚠️</div>
-              <div>This portfolio has encountered a visitor.<br>Hire anyway?</div>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; padding: 0 14px 14px;">
-              <div data-mag="1"
-                style="border: 2px solid #555; background: #d4d0c8; padding: 6px 16px; cursor: pointer; min-width: 92px; text-align: center;">
-                {{ heroLeftLabel }}</div>
-              <div data-mag="1"
-                style="border: 2px solid #555; background: #d4d0c8; padding: 6px 16px; cursor: pointer; min-width: 92px; text-align: center; outline: 1px dotted #000; outline-offset: -5px;">
-                {{ heroRightLabel }}</div>
-            </div>
+            style="background: repeating-linear-gradient(45deg, #ffe14d 0 22px, #0a0a0a 22px 44px); padding: 10px 0; text-align: center;">
+            <span
+              style="background: #0a0a0a; color: #ffe14d; font-family: 'Archivo Black', sans-serif; font-size: 14px; padding: 5px 16px;">
+              UNDER NO CONSTRUCTION
+            </span>
           </div>
         </div>
-        <div
-          style="background: repeating-linear-gradient(45deg, #ffe14d 0 22px, #0a0a0a 22px 44px); padding: 10px 0; text-align: center;">
-          <span
-            style="background: #0a0a0a; color: #ffe14d; font-family: 'Archivo Black', sans-serif; font-size: 14px; padding: 5px 16px;">UNDER
-            NO CONSTRUCTION</span>
-        </div>
-      </div>
-    </template>
+      </template>
 
-    <terminal-window></terminal-window>
-    <script type="module" src="./dist/main.js" defer></script>
-  </body>
+      <terminal-window></terminal-window>
+
+    </div>
+  </div>
+
+  <script type="module" src="./dist/main.js" defer></script>
+</body>
 
 </html>
