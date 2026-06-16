@@ -6,9 +6,11 @@
   "scripts": {
     "start": "bun run index.ts",
     "dev": "bun --hot run index.ts",
-    "build": "rolldown -c"
+    "build": "bun run build.config.ts",
+    "serve": "bun run build && bun run start"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.0",
     "@types/bun": "latest",
     "@types/figlet": "^1.7.0",
     "rolldown": "^1.1.1"
