@@ -1,3 +1,5 @@
+import sheet from './terminal.module.css' with { type: 'text' };
+
 class TerminalWindow extends HTMLElement {
   constructor() {
     super();
@@ -7,6 +9,9 @@ class TerminalWindow extends HTMLElement {
 
     if (template instanceof HTMLTemplateElement) {
       const shadowRoot = this.attachShadow({ mode: 'open' });
+      const stylesheet = new CSSStyleSheet();
+      stylesheet.replaceSync(sheet.toString());
+      shadowRoot.adoptedStyleSheets = [stylesheet];
       shadowRoot.appendChild(template.content.cloneNode(true));
     } else {
       console.error(

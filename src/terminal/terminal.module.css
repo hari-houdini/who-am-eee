@@ -1,0 +1,138 @@
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* terminal */
+.terminal {
+  align-self: center;
+  width: 100%;
+  max-width: 1040px;
+  background: #0d0d0d;
+  border: 1px solid #333;
+  box-shadow: 12px 14px 0 rgba(57, 255, 20, 0.07), 0 0 0 1px #1a1a1a;
+  position: relative;
+}
+
+.terminal__titlebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1c1c1c;
+  padding: 11px 16px;
+  border-bottom: 1px solid #333;
+  font-size: 13px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.terminal__dot {
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+}
+
+.terminal__dot--close    { background: #ff2e00; }
+.terminal__dot--minimize { background: #ffe14d; }
+.terminal__dot--maximize { background: #39ff14; }
+
+.terminal__titlebar-label {
+  margin-left: 10px;
+  color: #aaa;
+}
+
+.terminal__content {
+  padding: 42px 32px 0;
+  position: relative;
+}
+
+.terminal__status {
+  font-size: 14px;
+  color: #39ff14;
+  margin-bottom: 16px;
+}
+
+.terminal__tagline {
+  font-size: 15px;
+  color: #888;
+  margin-top: 16px;
+}
+
+.terminal__cursor {
+  display: inline-block;
+  width: 9px;
+  height: 17px;
+  background: #39ff14;
+  vertical-align: middle;
+  animation: blink 1s steps(1) infinite;
+}
+
+.terminal__hazard {
+  background: repeating-linear-gradient(45deg, #ffe14d 0 22px, #0a0a0a 22px 44px);
+  padding: 10px 0;
+  text-align: center;
+}
+
+.terminal__hazard-label {
+  background: #0a0a0a;
+  color: #ffe14d;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 14px;
+  padding: 5px 16px;
+}
+
+/* dialog (Win98-style error box) */
+.dialog {
+  margin: 34px 0 38px;
+  background: #d4d0c8;
+  color: #111;
+  max-width: 430px;
+  border: 2px solid #fff;
+  border-right-color: #555;
+  border-bottom-color: #555;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+}
+
+.dialog__titlebar {
+  background: #000082;
+  color: #fff;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dialog__body {
+  padding: 15px 14px 13px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.dialog__icon {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.dialog__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 0 14px 14px;
+}
+
+.dialog__button {
+  border: 2px solid #555;
+  background: #d4d0c8;
+  padding: 6px 16px;
+  cursor: pointer;
+  min-width: 92px;
+  text-align: center;
+}
+
+.dialog__button--focused {
+  outline: 1px dotted #000;
+  outline-offset: -5px;
+}
