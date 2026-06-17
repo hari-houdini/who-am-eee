@@ -33,41 +33,35 @@ const LABELS: Label = {
     text: 'Hari Houdini',
   },
   about: {
-    text: 'Full Stack Dev',
+    text: 'Abooty 🍑 Me',
   },
   tech_stack: {
-    text: 'Creative Coder',
+    text: 'Capabilities',
+    description: '(Self reported!)',
   },
   projects: {
-    text: 'Open to Work',
+    text: 'Incomplete Projects',
   },
   job_stats: {
-    text: 'Job Stats',
+    text: 'Skill Issue',
   },
   spotify: {
-    text: 'Spotify',
+    text: 'Now Playing.mp3',
+  },
+  testimonials: {
+    text: 'Victim Statements',
   },
   contact: {
-    text: "Let's Build",
+    text: 'Wanna be the next victim?',
+    description: 'Seriously, Employ me!',
   },
   footer: {
-    text: 'Footer',
+    text: 'You actually scrolled this far?',
+    description: 'Congrats, you hit rock bottom',
   },
 };
 
 const CARDS: Cards = {
-  above_the_fold: [
-    {
-      id: 'PROJ.001',
-      title: 'Who Am Eee',
-      tags: ['TypeScript', 'WebGL'],
-      year: '2025',
-      x: 600,
-      z: -800,
-      rotation: -5,
-      size: 's',
-    },
-  ],
   about: [
     {
       id: 'PROJ.002',
@@ -128,9 +122,21 @@ const CARDS: Cards = {
       size: 'l',
     },
   ],
-  contact: [
+  testimonials: [
     {
       id: 'PROJ.007',
+      title: 'Testimonials',
+      tags: ['Python', 'ML'],
+      year: '2024',
+      x: 600,
+      z: -4000,
+      rotation: -3,
+      size: 'l',
+    },
+  ],
+  contact: [
+    {
+      id: 'PROJ.008',
       title: 'Contact',
       tags: ['Python', 'ML'],
       year: '2024',
@@ -142,7 +148,7 @@ const CARDS: Cards = {
   ],
   footer: [
     {
-      id: 'PROJ.008',
+      id: 'PROJ.009',
       title: 'Footer',
       tags: ['Python', 'ML'],
       year: '2024',

@@ -26,7 +26,7 @@ function initWorld(world: HTMLElement) {
 
   let zIndex = 0;
 
-  Object.entries(LABELS).map(([key, { text }], i) => {
+  Object.entries(LABELS).map(([key, { text, description }], i) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'section__item';
     wrapper.dataset.animElement = '';
@@ -35,9 +35,18 @@ function initWorld(world: HTMLElement) {
     wrapper.dataset.y = '0';
     wrapper.dataset.z = String(zIndex);
     wrapper.dataset.rotation = '0';
+
     const inner = document.createElement('div');
     inner.className = 'section__item--title';
     inner.textContent = text;
+
+    if (description) {
+      const descriptionEl = document.createElement('div');
+      descriptionEl.className = 'section__item--tagline';
+      descriptionEl.textContent = description;
+      inner.appendChild(descriptionEl);
+    }
+
     wrapper.appendChild(inner);
     world.appendChild(wrapper);
 

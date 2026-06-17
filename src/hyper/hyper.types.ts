@@ -71,6 +71,7 @@ type Label = Record<
   string,
   {
     text: string;
+    description?: string;
   }
 >;
 

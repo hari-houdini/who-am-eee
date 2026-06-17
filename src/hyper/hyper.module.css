@@ -51,12 +51,18 @@
   color: transparent;
   -webkit-text-stroke: 2px hsl(345.88deg 100% 45.55% / 58%);
   text-transform: uppercase;
+  text-align: center;
   white-space: nowrap;
   transform: translate(-50%, -50%);
   pointer-events: none;
   letter-spacing: -0.25rem;
   mix-blend-mode: overlay;
   color: #0000008a;
+}
+
+.section__item--tagline {
+  font-size: 1cqw;
+  letter-spacing: 2rem;
 }
 
 /* --- CARDS --- */
