@@ -24,6 +24,49 @@ const LABELS = [
   "Let's Build",
 ];
 
+const CARDS = [
+  {
+    id: 'PROJ.001',
+    title: 'Who Am Eee',
+    tags: ['TypeScript', 'WebGL'],
+    year: '2025',
+    x: 600,
+    z: -800,
+    rotation: -5,
+    size: 's',
+  },
+  {
+    id: 'PROJ.002',
+    title: 'Project Alpha',
+    tags: ['React', 'Bun'],
+    year: '2024',
+    x: -600,
+    z: -2400,
+    rotation: 5,
+    size: 'm',
+  },
+  {
+    id: 'PROJ.003',
+    title: 'Dark Matter',
+    tags: ['Python', 'ML'],
+    year: '2024',
+    x: 600,
+    z: -4000,
+    rotation: -3,
+    size: 'l',
+  },
+  {
+    id: 'PROJ.004',
+    title: 'Void Runner',
+    tags: ['Rust', 'WASM'],
+    year: '2023',
+    x: -600,
+    z: -5600,
+    rotation: 4,
+    size: 'l',
+  },
+];
+
 function initWorld(world: HTMLElement) {
   for (let i = 0; i < SPACE_CONFIG.starCount; i++) {
     const wrapper = document.createElement('div');
@@ -55,6 +98,35 @@ function initWorld(world: HTMLElement) {
     inner.className = 'section__item--title';
     inner.textContent = text;
     wrapper.appendChild(inner);
+    world.appendChild(wrapper);
+  });
+
+  CARDS.forEach((card) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'section__item';
+    wrapper.dataset.animElement = '';
+    wrapper.dataset.type = 'card';
+    wrapper.dataset.x = String(card.x);
+    wrapper.dataset.y = '0';
+    wrapper.dataset.z = String(card.z);
+    wrapper.dataset.rotation = String(card.rotation);
+
+    const cardEl = document.createElement('div');
+    cardEl.classList.add('card', `card--${card.size}`);
+
+    cardEl.innerHTML = `
+      <div class="card-header">
+        <span class="card-id">${card.id}</span>
+        <span>↗</span>
+      </div>
+      <h2>${card.title}</h2>
+      <div class="card-footer">
+        <span>${card.tags.join(' · ')}</span>
+        <span>${card.year}</span>
+      </div>
+    `;
+
+    wrapper.appendChild(cardEl);
     world.appendChild(wrapper);
   });
 }
