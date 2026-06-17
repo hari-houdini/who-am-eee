@@ -56,6 +56,7 @@
   pointer-events: none;
   letter-spacing: -0.25rem;
   mix-blend-mode: overlay;
+  color: #0000008a;
 }
 
 /* --- CARDS --- */

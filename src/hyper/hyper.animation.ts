@@ -1,71 +1,10 @@
 import Lenis from 'lenis';
-
-const INITIAL_SPACE_STATE = {
-  scroll: 0,
-  targetSpeed: 0,
-  velocity: 0,
-  mouseX: 0,
-  mouseY: 0,
-};
-
-const SPACE_CONFIG = {
-  starCount: 150,
-  zGap: 1_600,
-  loopSize: 10_000,
-  camSpeed: 2.5,
-  colors: ['#ff003c', '#00f3ff', '#ccff00', '#ffffff'],
-};
-
-const LABELS = [
-  'Hari Houdini',
-  'Full Stack Dev',
-  'Creative Coder',
-  'Open to Work',
-  "Let's Build",
-];
-
-const CARDS = [
-  {
-    id: 'PROJ.001',
-    title: 'Who Am Eee',
-    tags: ['TypeScript', 'WebGL'],
-    year: '2025',
-    x: 600,
-    z: -800,
-    rotation: -5,
-    size: 's',
-  },
-  {
-    id: 'PROJ.002',
-    title: 'Project Alpha',
-    tags: ['React', 'Bun'],
-    year: '2024',
-    x: -600,
-    z: -2400,
-    rotation: 5,
-    size: 'm',
-  },
-  {
-    id: 'PROJ.003',
-    title: 'Dark Matter',
-    tags: ['Python', 'ML'],
-    year: '2024',
-    x: 600,
-    z: -4000,
-    rotation: -3,
-    size: 'l',
-  },
-  {
-    id: 'PROJ.004',
-    title: 'Void Runner',
-    tags: ['Rust', 'WASM'],
-    year: '2023',
-    x: -600,
-    z: -5600,
-    rotation: 4,
-    size: 'l',
-  },
-];
+import {
+  CARDS,
+  INITIAL_SPACE_STATE,
+  LABELS,
+  SPACE_CONFIG,
+} from './hyper.const';
 
 function initWorld(world: HTMLElement) {
   for (let i = 0; i < SPACE_CONFIG.starCount; i++) {
@@ -85,36 +24,45 @@ function initWorld(world: HTMLElement) {
     world.appendChild(wrapper);
   }
 
-  LABELS.forEach((text, i) => {
+  let zIndex = 0;
+
+  Object.entries(LABELS).map(([key, { text }], i) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'section__item';
     wrapper.dataset.animElement = '';
     wrapper.dataset.type = 'text';
     wrapper.dataset.x = '0';
     wrapper.dataset.y = '0';
-    wrapper.dataset.z = String(-i * SPACE_CONFIG.zGap);
+    wrapper.dataset.z = String(zIndex);
     wrapper.dataset.rotation = '0';
     const inner = document.createElement('div');
     inner.className = 'section__item--title';
     inner.textContent = text;
     wrapper.appendChild(inner);
     world.appendChild(wrapper);
-  });
 
-  CARDS.forEach((card) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'section__item';
-    wrapper.dataset.animElement = '';
-    wrapper.dataset.type = 'card';
-    wrapper.dataset.x = String(card.x);
-    wrapper.dataset.y = '0';
-    wrapper.dataset.z = String(card.z);
-    wrapper.dataset.rotation = String(card.rotation);
+    zIndex -= SPACE_CONFIG.zGap;
 
-    const cardEl = document.createElement('div');
-    cardEl.classList.add('card', `card--${card.size}`);
+    const cards = CARDS[key] ?? [];
 
-    cardEl.innerHTML = `
+    if (!cards.length) return null;
+
+    cards.map((card) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'section__item';
+      wrapper.dataset.animElement = '';
+      wrapper.dataset.type = 'card';
+      wrapper.dataset.x = String(card.x);
+      wrapper.dataset.y = '0';
+      wrapper.dataset.z = String(zIndex);
+      wrapper.dataset.rotation = String(card.rotation);
+
+      zIndex -= SPACE_CONFIG.zGap;
+
+      const cardEl = document.createElement('div');
+      cardEl.classList.add('card', `card--${card.size}`);
+
+      cardEl.innerHTML = `
       <div class="card-header">
         <span class="card-id">${card.id}</span>
         <span>↗</span>
@@ -126,8 +74,13 @@ function initWorld(world: HTMLElement) {
       </div>
     `;
 
-    wrapper.appendChild(cardEl);
-    world.appendChild(wrapper);
+      wrapper.appendChild(cardEl);
+      world.appendChild(wrapper);
+
+      return null;
+    });
+
+    return null;
   });
 }
 
