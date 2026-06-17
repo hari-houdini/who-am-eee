@@ -9,7 +9,7 @@ const result = await Bun.build({
     'resources/messages_en.properties',
   ],
   outdir: 'dist',
-  minify: true,
+  minify: process.env.NODE_ENV === 'production',
   sourcemap: process.env.NODE_ENV === 'production' ? 'none' : true,
   splitting: true,
   target: 'browser',

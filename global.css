@@ -1,24 +1,24 @@
+:root {
+  --bg: #030303;
+  --card-bg: rgba(10, 10, 10, 0.4);
+  --text: #e0e0e0;
+  --accent: #ff003c;
+  /* Cyber Red */
+  --accent-2: #00f3ff;
+  /* Cyber Cyan */
+  --border: rgba(255, 255, 255, 0.1);
+  --font-display: 'Syncopate', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+}
+
 body {
-  background-color: #000;
-  color: #fff;
-}
-
-/* layout */
-.layout {
-  font-family: 'Space Mono', monospace;
-  color: #e8ffe8;
-  min-height: 100vh;
-  background-image:
-    linear-gradient(rgba(57, 255, 20, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(57, 255, 20, 0.035) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
-
-.layout__container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 64px 20px 220px;
-  display: flex;
-  flex-direction: column;
-  gap: 84px;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-display);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  cursor: crosshair;
 }
