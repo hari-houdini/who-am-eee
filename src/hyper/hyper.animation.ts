@@ -9,7 +9,6 @@ const INITIAL_SPACE_STATE = {
 };
 
 const SPACE_CONFIG = {
-  itemCount: 20,
   starCount: 150,
   zGap: 800,
   loopSize: 16_000,
@@ -17,21 +16,17 @@ const SPACE_CONFIG = {
   colors: ['#ff003c', '#00f3ff', '#ccff00', '#ffffff'],
 };
 
-const lenis = new Lenis({
-  smoothWheel: true,
-  lerp: 0.08, // Increased weight for heavy feel
-  orientation: 'vertical',
-  gestureOrientation: 'vertical',
-  syncTouch: true,
-});
-
 function loadHyperSpaceAnimation(context: HTMLElement) {
   if (!context.shadowRoot) return;
 
   const state = { ...INITIAL_SPACE_STATE };
 
+  const lenis = new Lenis({
+    lerp: 0.08, // Increased weight for heavy feel
+    syncTouch: true, // Replaces smoothTouch
+  });
+
   lenis.on('scroll', ({ scroll, velocity }) => {
-    console.log(scroll, velocity);
     state.scroll = scroll;
     state.targetSpeed = velocity;
   });
@@ -40,10 +35,6 @@ function loadHyperSpaceAnimation(context: HTMLElement) {
     state.mouseX = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
     state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
   });
-
-  // const animElements = Array.from<HTMLElement>(
-  //   context.shadowRoot.querySelectorAll('[data-anim-element]'),
-  // );
 
   rafLoop(lenis, state, context.shadowRoot);
 }

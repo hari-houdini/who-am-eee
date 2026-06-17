@@ -17,8 +17,12 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-display);
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
+  overflow-x: hidden;
   cursor: crosshair;
+}
+
+.scroll-proxy {
+  height: 10000vh;
+  width: 100%;
+  pointer-events: none;
 }
