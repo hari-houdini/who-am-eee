@@ -1,16 +1,19 @@
+import type { HTMLBundle } from 'bun';
 import loadHyperSpaceAnimation from './hyper.animation';
-import sheet from './hyper.module.css' with { type: 'text' };
+import hyperSpaceStyles from './hyper.module.css' with { type: 'text' };
+import hyperSpaceTemplate from './hyper.template.html' with { type: 'text' };
 
 class HyperSpaceWindow extends HTMLElement {
   constructor() {
     super();
     console.log('Hyper space window element created.');
-    const template = document.getElementById('hyper-space-template');
+    const template = document.createElement('template');
+    template.innerHTML = String(hyperSpaceTemplate);
 
     if (template instanceof HTMLTemplateElement) {
       const shadowRoot = this.attachShadow({ mode: 'open' });
       const stylesheet = new CSSStyleSheet();
-      stylesheet.replaceSync(sheet.toString());
+      stylesheet.replaceSync(hyperSpaceStyles.toString());
       shadowRoot.adoptedStyleSheets = [stylesheet];
       shadowRoot.appendChild(template.content.cloneNode(true));
     } else {

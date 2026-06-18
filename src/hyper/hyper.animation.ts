@@ -77,6 +77,7 @@ function initWorld(world: HTMLElement) {
         <span>↗</span>
       </div>
       <h2>${card.title}</h2>
+      <div class="card-content">${card.content}</div>
       <div class="card-footer">
         <span>${card.tags.join(' · ')}</span>
         <span>${card.year}</span>
@@ -97,6 +98,14 @@ function loadHyperSpaceAnimation(context: HTMLElement) {
   if (!context.shadowRoot) return;
 
   const state = { ...INITIAL_SPACE_STATE };
+
+  const world = context.shadowRoot.getElementById('world');
+
+  if (!world) return;
+
+  const worldEl = world;
+
+  initWorld(worldEl);
 
   const lenis = new Lenis({
     lerp: 0.08, // Increased weight for heavy feel
@@ -131,8 +140,6 @@ function rafLoop(
 
   const worldEl = world;
   const viewportEl = viewport;
-
-  initWorld(worldEl);
 
   const animElements = Array.from<HTMLElement>(
     root.querySelectorAll('[data-anim-element]'),

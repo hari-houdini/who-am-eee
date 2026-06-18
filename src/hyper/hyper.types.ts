@@ -83,6 +83,7 @@ type Card = {
   x?: number;
   y?: number;
   z?: number;
+  content: string;
   rotation: number;
   size: 's' | 'm' | 'l';
 };
