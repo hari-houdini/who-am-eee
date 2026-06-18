@@ -80,8 +80,9 @@ type Card = {
   title: string;
   tags: string[];
   year: string;
-  x: number;
-  z: number;
+  x?: number;
+  y?: number;
+  z?: number;
   rotation: number;
   size: 's' | 'm' | 'l';
 };
@@ -97,6 +98,7 @@ type SpaceState = {
 };
 
 type SpaceConfig = {
+  itemCount: number;
   starCount: number;
   zGap: number;
   loopSize: number;

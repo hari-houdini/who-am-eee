@@ -19,12 +19,15 @@ const SPACE_CONFIG: SpaceConfig = {
   camSpeed: 2.5,
   colors: ['#ff003c', '#00f3ff', '#ccff00', '#ffffff'],
 
-  get loopSize() {
+  get itemCount() {
     return (
-      (Object.values(LABELS).length +
-        [...Object.values(CARDS)].flat().length) *
-      SPACE_CONFIG.zGap
+      Object.values(LABELS).length +
+      Object.values(CARDS).flat().length
     );
+  },
+
+  get loopSize() {
+    return this.itemCount * this.zGap;
   },
 };
 
@@ -33,7 +36,7 @@ const LABELS: Label = {
     text: 'Hari Houdini',
   },
   about: {
-    text: 'Abooty 🍑 Me',
+    text: 'Ab🍑ut Me',
   },
   tech_stack: {
     text: 'Capabilities',

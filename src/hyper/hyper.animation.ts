@@ -24,7 +24,7 @@ function initWorld(world: HTMLElement) {
     world.appendChild(wrapper);
   }
 
-  let zIndex = 0;
+  let zIndex = -200;
 
   Object.entries(LABELS).map(([key, { text, description }], i) => {
     const wrapper = document.createElement('div');
@@ -61,10 +61,10 @@ function initWorld(world: HTMLElement) {
       wrapper.className = 'section__item';
       wrapper.dataset.animElement = '';
       wrapper.dataset.type = 'card';
-      wrapper.dataset.x = String(card.x);
-      wrapper.dataset.y = '0';
+      wrapper.dataset.x = String(card.x ?? 0);
+      wrapper.dataset.y = String(card.y ?? 0);
       wrapper.dataset.z = String(zIndex);
-      wrapper.dataset.rotation = String(card.rotation);
+      wrapper.dataset.rotation = String(card.rotation ?? 0);
 
       zIndex -= SPACE_CONFIG.zGap;
 
@@ -166,13 +166,19 @@ function rafLoop(
     viewportEl.style.perspective = `${fov}px`;
 
     const cameraZ = state.scroll * SPACE_CONFIG.camSpeed;
+    const modC = SPACE_CONFIG.loopSize;
 
     items.forEach((item) => {
       const relZ = item.baseZ + cameraZ;
-      const modC = SPACE_CONFIG.loopSize;
 
+      // vizZ is the distance from the camera to the item, dictating the visibility
+      // modC is the number of items in the space
+      // The more items, the more the camera zooms out
+      // This equation is to make the values of vizZ more evenly distributed, between -modC and modC
       let vizZ = ((relZ % modC) + modC) % modC;
-      if (vizZ > 500) vizZ -= modC;
+
+      // This is to make the camera zoom out more slowly
+      if (vizZ > 1000) vizZ -= modC;
 
       let alpha = 1;
       if (vizZ < -3000) alpha = 0;
