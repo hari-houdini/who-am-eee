@@ -6,7 +6,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "dev": "bun --hot run index.ts",
-    "build": "bun run build.config.ts",
+    "build": "bun run build.config.ts && cp -r ./public/. ./dist/",
     "serve": "bun run build && bun run start"
   },
   "devDependencies": {

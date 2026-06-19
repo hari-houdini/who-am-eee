@@ -215,12 +215,20 @@ function rafLoop(
         }
         case 'text': {
           trans += ` rotateZ(${item.rotation}deg)`;
-          console.log('velocity', Math.abs(state.velocity));
+          const transX = -state.mouseX / state.mouseX + 50;
+          const transY = -state.mouseY / state.mouseY + 50;
+
+          const title = item.el.querySelectorAll(
+            '.section__item--title',
+          )[0] as HTMLElement;
+
+          title.style.backgroundPosition = `${transX}% ${transY}%`;
+
           if (Math.abs(state.velocity) > 1) {
             const offset = state.velocity * 2;
             item.el.style.textShadow = `${offset}px 0 red, ${-offset}px 0 cyan`;
           } else {
-            item.el.style.textShadow = 'black 5px 5px 5px';
+            item.el.style.textShadow = 'none';
           }
           break;
         }

@@ -49,15 +49,18 @@
   font-size: 15vw;
   font-weight: 800;
   color: transparent;
-  -webkit-text-stroke: 2px hsl(345.88deg 100% 45.55% / 58%);
+  -webkit-text-stroke: 2px hsla(0, 0%, 100%, 0.58);
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
   transform: translate(-50%, -50%);
   pointer-events: none;
   letter-spacing: -0.25rem;
-  mix-blend-mode: overlay;
   color: #0000008a;
+  background: url("https://phandroid.s3.amazonaws.com/wp-content/uploads/2014/05/rainbow-nebula.jpg") repeat;
+  background-position: 40% 50%;
+  background-clip: text;
+  -webkit-background-clip: text;
 }
 
 .section__item--tagline {
