@@ -1,4 +1,3 @@
-import type { HTMLBundle } from 'bun';
 import loadHyperSpaceAnimation from './hyper.animation';
 import hyperSpaceStyles from './hyper.module.css' with { type: 'text' };
 import hyperSpaceTemplate from './hyper.template.html' with { type: 'text' };
