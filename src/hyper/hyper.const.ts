@@ -33,10 +33,10 @@ const SPACE_CONFIG: SpaceConfig = {
 
 const LABELS: Label = {
   above_the_fold: {
-    text: 'Hari Houdini',
+    text: 'Hari H🍑udini',
   },
   about: {
-    text: 'Ab🍑ut Me',
+    text: 'whoami',
   },
   tech_stack: {
     text: 'Capabilities',
