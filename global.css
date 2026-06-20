@@ -65,8 +65,8 @@
 
     /* - CARDS - */
     --card-bg: rgba(10, 10, 10, 0.4);
-    --card-height: 100px;
-    --card-width: 100px;
+    --card-height: 150px;
+    --card-width: 300px;
   }
 }
 

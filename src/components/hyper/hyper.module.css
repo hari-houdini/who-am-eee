@@ -208,6 +208,8 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 .cell {
@@ -225,7 +227,12 @@
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &:hover {
-    color: var(--accent);
+    .cell__title {
+      color: var(--accent);
+    }
+
+    box-shadow: 0 0 30px var(--hyper-card-hover-shadow);
+    background: var(--hyper-card-bg-hover);
   }
 
   &:hover::before {
@@ -259,11 +266,6 @@
   }
 
 }
-
-/* .cell:hover {
-  box-shadow: 0 0 30px var(--hyper-card-hover-shadow);
-  background: var(--hyper-card-bg-hover);
-} */
 
 .cell__icon {
   svg {
