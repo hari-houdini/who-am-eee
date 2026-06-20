@@ -4,6 +4,7 @@ import type {
   SpaceConfig,
   SpaceState,
 } from './hyper.types';
+import techStack from './tech-stack.html' with { type: 'text' };
 
 /**
  * Initial mutable state for the hyper-space animation loop.
@@ -107,21 +108,30 @@ const CARDS: Cards = {
           <em>Yeah, that's me, a walking type-checking error completely devoid of a release strategy, and honestly? I'd do it all again. Probably am.</em>
         `,
       rotation: 5,
-      size: 'm',
+      size: 'l',
     },
   ],
   tech_stack: [
     {
-      id: 'PROJ.003',
+      id: 'PROJ.TECHNICAL',
       title: 'Dark Matter',
-      tags: ['Python', 'ML'],
-      year: '2024',
+      tags: ['TypeScript Engineer', 'Frontend', 'Backend', 'Cloud'],
+      year: 'WIP: AI/ML',
       x: 600,
       z: -4000,
       rotation: -3,
-      content: `
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>
-      `,
+      content: `${techStack}`,
+      size: 'l',
+    },
+    {
+      id: 'PROJ.MANAGEMENT',
+      title: 'Grey Matter',
+      tags: ['Python', 'ML'],
+      year: '2024',
+      x: -600,
+      z: -4000,
+      rotation: 3,
+      content: `${techStack}`,
       size: 'l',
     },
   ],

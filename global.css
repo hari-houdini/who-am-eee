@@ -45,7 +45,6 @@
   :root {
     /* — Global design tokens — */
     --bg: #f00;
-    --card-bg: rgba(10, 10, 10, 0.4);
     --text: #e0e0e0;
     --accent: #ff003c;
     --accent-2: #00f3ff;
@@ -63,7 +62,18 @@
     --hyper-heading-color: #fff;
     --hyper-footer-text: rgba(255, 255, 255, 0.4);
     --hyper-star-color: black;
+
+    /* - CARDS - */
+    --card-bg: rgba(10, 10, 10, 0.4);
+    --card-height: 100px;
+    --card-width: 100px;
   }
+}
+
+@property --card-rotate {
+  syntax: "<angle>";
+  initial-value: 132deg;
+  inherits: false;
 }
 
 @layer layout {
@@ -85,6 +95,18 @@
     width: 100%;
     z-index: -1;
     pointer-events: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 }
 

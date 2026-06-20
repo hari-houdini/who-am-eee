@@ -266,10 +266,12 @@ function rafLoop(
 
       if (alpha <= 0) {
         item.el.style.opacity = '0';
+        item.el.style.display = 'none';
         return;
       }
 
       item.el.style.opacity = String(alpha);
+      item.el.style.display = 'flex';
 
       let trans = `translate3d(${item.x}px, ${item.y}px, ${vizZ}px)`;
 

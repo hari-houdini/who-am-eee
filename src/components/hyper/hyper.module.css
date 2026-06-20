@@ -141,6 +141,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .card::before,
   .card::after {
     transition: none;
@@ -200,4 +201,110 @@
   background: var(--hyper-star-color);
   transform: translate(-50%, -50%);
   backface-visibility: hidden;
+}
+
+/* --- TECH STACK --- */
+.cell__list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--card-width);
+  height: var(--card-height);
+  margin: 1rem;
+  border-radius: 0.5rem;
+  background: var(--card-bg);
+  box-shadow: 0 0 0 1px var(--border);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  &:hover {
+    color: var(--accent);
+  }
+
+  &:hover::before {
+    content: "";
+    width: 104%;
+    height: 102%;
+    border-radius: 8px;
+    background-image: linear-gradient(var(--card-rotate), #ff5d5d, #e33c3c 43%, #c20000);
+    position: absolute;
+    z-index: -1;
+    top: -1%;
+    left: -2%;
+    animation: spin 2.5s linear infinite;
+  }
+
+  &:hover::after {
+    position: absolute;
+    content: "";
+    top: calc(var(--card-height) / 6);
+    left: 0;
+    right: 0;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+    transform: scale(0.8);
+    filter: blur(calc(var(--card-height) / 6));
+    background-image: linear-gradient(var(--card-rotate), #ff5d5d, #e33c3c 43%, #c20000);
+    opacity: 1;
+    animation: spin 2.5s linear infinite;
+  }
+
+}
+
+/* .cell:hover {
+  box-shadow: 0 0 30px var(--hyper-card-hover-shadow);
+  background: var(--hyper-card-bg-hover);
+} */
+
+.cell__icon {
+  svg {
+    width: 3rem;
+    height: 3rem;
+
+    * {
+      fill: var(--bg) !important;
+    }
+  }
+
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.cell__title {
+  font-size: 1.5rem;
+  line-height: 1.5;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--hyper-heading-color);
+  mix-blend-mode: hard-light;
+}
+
+.cell__link {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@keyframes spin {
+  0% {
+    --card-rotate: 0deg;
+  }
+
+  100% {
+    --card-rotate: 360deg;
+  }
 }
