@@ -50,9 +50,11 @@ function createCardElement(card: Card): HTMLDivElement {
 
   const tagsSpan = document.createElement('span');
   tagsSpan.textContent = card.tags.join(' · ');
+  tagsSpan.className = 'card__tags';
 
   const yearSpan = document.createElement('span');
   yearSpan.textContent = card.year;
+  yearSpan.className = 'card__year';
 
   footer.appendChild(tagsSpan);
   footer.appendChild(yearSpan);
@@ -79,14 +81,14 @@ function initWorld(world: HTMLElement): void {
   for (let i = 0; i < SPACE_CONFIG.starCount; i++) {
     const wrapper = document.createElement('div');
     wrapper.className = 'section__item';
-    wrapper.dataset['animElement'] = '';
-    wrapper.dataset['type'] = 'star';
-    wrapper.dataset['x'] = String((Math.random() - 0.5) * 4000);
-    wrapper.dataset['y'] = String((Math.random() - 0.5) * 4000);
-    wrapper.dataset['z'] = String(
+    wrapper.dataset.animElement = '';
+    wrapper.dataset.type = 'star';
+    wrapper.dataset.x = String((Math.random() - 0.5) * 4000);
+    wrapper.dataset.y = String((Math.random() - 0.5) * 4000);
+    wrapper.dataset.z = String(
       -Math.random() * SPACE_CONFIG.loopSize,
     );
-    wrapper.dataset['rotation'] = '0';
+    wrapper.dataset.rotation = '0';
     const dot = document.createElement('div');
     dot.className = 'star';
     wrapper.appendChild(dot);
@@ -98,12 +100,12 @@ function initWorld(world: HTMLElement): void {
   Object.entries(LABELS).forEach(([key, { text, description }]) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'section__item';
-    wrapper.dataset['animElement'] = '';
-    wrapper.dataset['type'] = 'text';
-    wrapper.dataset['x'] = '0';
-    wrapper.dataset['y'] = '0';
-    wrapper.dataset['z'] = String(zIndex);
-    wrapper.dataset['rotation'] = '0';
+    wrapper.dataset.animElement = '';
+    wrapper.dataset.type = 'text';
+    wrapper.dataset.x = '0';
+    wrapper.dataset.y = '0';
+    wrapper.dataset.z = String(zIndex);
+    wrapper.dataset.rotation = '0';
 
     const inner = document.createElement('div');
     inner.className = 'section__item--title';
@@ -126,12 +128,12 @@ function initWorld(world: HTMLElement): void {
     cards.forEach((card) => {
       const cardWrapper = document.createElement('div');
       cardWrapper.className = 'section__item';
-      cardWrapper.dataset['animElement'] = '';
-      cardWrapper.dataset['type'] = 'card';
-      cardWrapper.dataset['x'] = String(card.x ?? 0);
-      cardWrapper.dataset['y'] = String(card.y ?? 0);
-      cardWrapper.dataset['z'] = String(zIndex);
-      cardWrapper.dataset['rotation'] = String(card.rotation ?? 0);
+      cardWrapper.dataset.animElement = '';
+      cardWrapper.dataset.type = 'card';
+      cardWrapper.dataset.x = String(card.x ?? 0);
+      cardWrapper.dataset.y = String(card.y ?? 0);
+      cardWrapper.dataset.z = String(zIndex);
+      cardWrapper.dataset.rotation = String(card.rotation ?? 0);
 
       zIndex -= SPACE_CONFIG.zGap;
 
@@ -221,11 +223,11 @@ function rafLoop(
 
   const items = animElements.map((el) => ({
     el,
-    type: el.dataset['type'],
-    x: Number(el.dataset['x'] ?? '0'),
-    y: Number(el.dataset['y'] ?? '0'),
-    baseZ: Number(el.dataset['z'] ?? '0'),
-    rotation: Number(el.dataset['rotation'] ?? '0'),
+    type: el.dataset.type,
+    x: Number(el.dataset.x ?? '0'),
+    y: Number(el.dataset.y ?? '0'),
+    baseZ: Number(el.dataset.z ?? '0'),
+    rotation: Number(el.dataset.rotation ?? '0'),
   }));
 
   /** Inner RAF callback — scheduled recursively via `requestAnimationFrame`. */
@@ -286,8 +288,10 @@ function rafLoop(
           trans += ` rotateZ(${item.rotation}deg)`;
 
           if (!reduceMotion.matches) {
-            const transX = -state.mouseX / state.mouseX + 50;
-            const transY = -state.mouseY / state.mouseY + 50;
+            const transX =
+              (-state.mouseX / (state.mouseX + 50)) * 100;
+            const transY =
+              (-state.mouseY / (state.mouseY + 50)) * 100;
 
             const titleEl = item.el.querySelector<HTMLElement>(
               '.section__item--title',

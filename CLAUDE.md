@@ -98,7 +98,6 @@ All of the following must be enabled in `tsconfig.json`:
 - `noUncheckedIndexedAccess: true` — `arr[i]` returns `T | undefined`
 - `noImplicitOverride: true` — use `override` on any method that overrides a typed base-class method
 - `exactOptionalPropertyTypes: true` — `{ x?: T }` ≠ `{ x: T | undefined }`
-- `noPropertyAccessFromIndexSignature: true`
 - `forceConsistentCasingInFileNames: true`
 - `noFallthroughCasesInSwitch: true`
 
