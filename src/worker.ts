@@ -1,5 +1,9 @@
 /**
- * Spotify
+ * Spotify worker — resolves the Spotify client ID from Bun's secret store
+ * and initialises the {@link SpotifyService}.
+ *
+ * @remarks
+ * The implementation is currently commented out pending Spotify OAuth setup.
  */
 
 import { secrets } from 'bun';
@@ -11,13 +15,13 @@ import { SpotifyService } from './spotify.service';
 // });
 
 // if (!spotifyClientId) {
-//   if (!process.env.SPOTIFY_CLIENT_ID) {
+//   if (!Bun.env.SPOTIFY_CLIENT_ID) {
 //     throw new Error('Spotify client ID is not set');
 //   }
 
 //   await secrets.set({
 //     service: 'spotify',
 //     name: 'client-id',
-//     value: process.env.SPOTIFY_CLIENT_ID,
+//     value: Bun.env.SPOTIFY_CLIENT_ID,
 //   });
 // }

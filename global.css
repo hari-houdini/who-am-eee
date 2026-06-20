@@ -1,33 +1,153 @@
-:root {
-  --bg: #f00;
-  --card-bg: rgba(10, 10, 10, 0.4);
-  --text: #e0e0e0;
-  --accent: #ff003c;
-  /* Cyber Red */
-  --accent-2: #00f3ff;
-  /* Cyber Cyan */
-  --border: rgba(255, 255, 255, 0.1);
-  --font-display: 'Syncopate', sans-serif;
-  --font-code: 'JetBrains Mono', monospace;
+@layer reset, base, layout, components, utilities, overrides;
+
+@layer base {
+  @font-face {
+    font-family: 'Archivo Black';
+    src: url('./public/fonts/archivo-black-400.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Space Mono';
+    src: url('./public/fonts/space-mono-400.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Space Mono';
+    src: url('./public/fonts/space-mono-700.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Space Mono';
+    src: url('./public/fonts/space-mono-400-italic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Syncopate';
+    src: url('./public/fonts/syncopate-400.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Syncopate';
+    src: url('./public/fonts/syncopate-700.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('./public/fonts/jetbrains-mono-400.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'JetBrains Mono';
+    src: url('./public/fonts/jetbrains-mono-700.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    /* — Global design tokens — */
+    --bg: #f00;
+    --card-bg: rgba(10, 10, 10, 0.4);
+    --text: #e0e0e0;
+    --accent: #ff003c;
+    --accent-2: #00f3ff;
+    --border: rgba(255, 255, 255, 0.1);
+    --font-display: 'Syncopate', sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
+
+    /* — Hyper-space component tokens — */
+    --hyper-text-stroke: hsla(0, 0%, 100%, 0.58);
+    --hyper-text-color: #0000008a;
+    --hyper-card-shadow: rgba(0, 0, 0, 0.5);
+    --hyper-card-bg-hover: rgba(20, 20, 20, 0.8);
+    --hyper-card-hover-shadow: rgba(255, 0, 60, 0.2);
+    --hyper-heading-color: #fff;
+    --hyper-footer-text: rgba(255, 255, 255, 0.4);
+    --hyper-star-color: black;
+
+    /* — Terminal component tokens — */
+    --terminal-bg: #0d0d0d;
+    --terminal-border: #333;
+    --terminal-glow: rgba(57, 255, 20, 0.07);
+    --terminal-green: #39ff14;
+    --terminal-yellow: #ffe14d;
+    --terminal-titlebar-bg: #1c1c1c;
+    --terminal-dot-close: #ff2e00;
+    --terminal-text-dim: #aaa;
+    --terminal-text-dimmer: #888;
+    --terminal-hazard-bg: #0a0a0a;
+    --terminal-font: 'Archivo Black', sans-serif;
+    --dialog-bg: #d4d0c8;
+    --dialog-titlebar-bg: #000082;
+    --dialog-border: #555;
+    --dialog-shadow: rgba(0, 0, 0, 0.6);
+  }
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-display);
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
-  cursor: crosshair;
+@layer layout {
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    cursor: crosshair;
+  }
 
+  .scroll-proxy {
+    height: 10000vh;
+    position: absolute;
+    width: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
 }
 
-.scroll-proxy {
-  height: 10000vh;
-  position: absolute;
-  width: 100%;
-  z-index: -1;
-  pointer-events: none;
+@layer utilities {
+  .layout__skip-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-code);
+    z-index: 9999;
+    transform: translateY(-100%);
+    transition: transform 0.2s;
+  }
+
+  .layout__skip-nav:focus {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .layout__skip-nav {
+      transition: none;
+    }
+  }
 }

@@ -1,4 +1,3 @@
-
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
@@ -9,9 +8,11 @@
   align-self: center;
   width: 100%;
   max-width: 1040px;
-  background: #0d0d0d;
-  border: 1px solid #333;
-  box-shadow: 12px 14px 0 rgba(57, 255, 20, 0.07), 0 0 0 1px #1a1a1a;
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-border);
+  box-shadow:
+    12px 14px 0 var(--terminal-glow),
+    0 0 0 1px #1a1a1a;
   position: relative;
 }
 
@@ -19,9 +20,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #1c1c1c;
+  background: var(--terminal-titlebar-bg);
   padding: 11px 16px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--terminal-border);
   font-size: 13px;
   cursor: grab;
   touch-action: none;
@@ -34,13 +35,13 @@
   display: inline-block;
 }
 
-.terminal__dot--close    { background: #ff2e00; }
-.terminal__dot--minimize { background: #ffe14d; }
-.terminal__dot--maximize { background: #39ff14; }
+.terminal__dot--close    { background: var(--terminal-dot-close); }
+.terminal__dot--minimize { background: var(--terminal-yellow); }
+.terminal__dot--maximize { background: var(--terminal-green); }
 
 .terminal__titlebar-label {
   margin-left: 10px;
-  color: #aaa;
+  color: var(--terminal-text-dim);
 }
 
 .terminal__content {
@@ -50,13 +51,13 @@
 
 .terminal__status {
   font-size: 14px;
-  color: #39ff14;
+  color: var(--terminal-green);
   margin-bottom: 16px;
 }
 
 .terminal__tagline {
   font-size: 15px;
-  color: #888;
+  color: var(--terminal-text-dimmer);
   margin-top: 16px;
 }
 
@@ -64,21 +65,32 @@
   display: inline-block;
   width: 9px;
   height: 17px;
-  background: #39ff14;
+  background: var(--terminal-green);
   vertical-align: middle;
   animation: blink 1s steps(1) infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .terminal__cursor {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 .terminal__hazard {
-  background: repeating-linear-gradient(45deg, #ffe14d 0 22px, #0a0a0a 22px 44px);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--terminal-yellow) 0 22px,
+    var(--terminal-hazard-bg) 22px 44px
+  );
   padding: 10px 0;
   text-align: center;
 }
 
 .terminal__hazard-label {
-  background: #0a0a0a;
-  color: #ffe14d;
-  font-family: 'Archivo Black', sans-serif;
+  background: var(--terminal-hazard-bg);
+  color: var(--terminal-yellow);
+  font-family: var(--terminal-font);
   font-size: 14px;
   padding: 5px 16px;
 }
@@ -86,18 +98,18 @@
 /* dialog (Win98-style error box) */
 .dialog {
   margin: 34px 0 38px;
-  background: #d4d0c8;
+  background: var(--dialog-bg);
   color: #111;
   max-width: 430px;
   border: 2px solid #fff;
-  border-right-color: #555;
-  border-bottom-color: #555;
-  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.6);
+  border-right-color: var(--dialog-border);
+  border-bottom-color: var(--dialog-border);
+  box-shadow: 6px 6px 0 var(--dialog-shadow);
   font-size: 13px;
 }
 
 .dialog__titlebar {
-  background: #000082;
+  background: var(--dialog-titlebar-bg);
   color: #fff;
   padding: 6px 10px;
   display: flex;
@@ -124,8 +136,8 @@
 }
 
 .dialog__button {
-  border: 2px solid #555;
-  background: #d4d0c8;
+  border: 2px solid var(--dialog-border);
+  background: var(--dialog-bg);
   padding: 6px 16px;
   cursor: pointer;
   min-width: 92px;

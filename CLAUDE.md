@@ -96,7 +96,7 @@ All of the following must be enabled in `tsconfig.json`:
 
 - `strict: true`
 - `noUncheckedIndexedAccess: true` — `arr[i]` returns `T | undefined`
-- `noImplicitOverride: true` — HTMLElement lifecycle methods must use `override`
+- `noImplicitOverride: true` — use `override` on any method that overrides a typed base-class method
 - `exactOptionalPropertyTypes: true` — `{ x?: T }` ≠ `{ x: T | undefined }`
 - `noPropertyAccessFromIndexSignature: true`
 - `forceConsistentCasingInFileNames: true`
@@ -109,8 +109,10 @@ All of the following must be enabled in `tsconfig.json`:
 - Never mix value and type exports in one statement (`export { Foo, type Bar }` — split them).
 - Never use `any`. Never use `@ts-ignore` without a comment explaining why.
 - Use `as const` for literal constant objects.
-- `override` keyword is mandatory on all HTMLElement lifecycle method implementations
-  (`connectedCallback`, `disconnectedCallback`, `adoptedCallback`, `attributeChangedCallback`).
+- Custom element lifecycle callbacks (`connectedCallback`, `disconnectedCallback`,
+  `adoptedCallback`, `attributeChangedCallback`) are **not** declared on `HTMLElement`
+  in the TypeScript DOM lib, so `override` must NOT be used on them — it causes TS4113.
+  Define them as plain methods. Use `override` only when the base class declares the method.
 - Prefer `unknown` over `any` when the type is genuinely unknown.
 - Use `satisfies` to validate object literals against a type without widening.
 
@@ -151,13 +153,14 @@ if (shadowRoot.adoptedStyleSheets !== undefined) {
 
 ### Lifecycle methods
 
-All four lifecycle callbacks must be present and use the `override` keyword:
+All four lifecycle callbacks must be present. Do NOT use `override` — the TS DOM lib
+does not declare them on `HTMLElement`, so `override` causes TS4113:
 
 ```typescript
-override connectedCallback(): void { ... }
-override disconnectedCallback(): void { ... }
-override adoptedCallback(): void { ... }
-override attributeChangedCallback(
+connectedCallback(): void { ... }
+disconnectedCallback(): void { ... }
+adoptedCallback(): void { ... }
+attributeChangedCallback(
   name: string,
   oldValue: string | null,
   newValue: string | null,

@@ -2,25 +2,27 @@ import fs from 'node:fs/promises';
 import type { BunPlugin } from 'bun';
 import messages from '../resources/messages_en.properties';
 
+/**
+ * Bun build plugin that replaces `{{ key }}` placeholders in `.html` files
+ * with the matching values from `messages_en.properties`.
+ *
+ * @remarks
+ * All keys in the properties file are applied to each HTML file in sequence.
+ * The replacement uses `String.replaceAll` so every occurrence of a key is
+ * substituted, not just the first.
+ */
 export const htmlReplacePlugin: BunPlugin = {
   name: 'html-replace-plugin',
   target: 'bun',
   setup(build) {
     build.onLoad({ filter: /\.html$/ }, async (args) => {
-      console.log('Loading HTML file:', args.path);
-      const text = await fs.readFile(args.path, { encoding: 'utf8' });
-      console.log('HTML file text:', text);
-      let updatedText = '';
+      let text = await fs.readFile(args.path, { encoding: 'utf8' });
 
-      // Loop and replace keys
       for (const [key, value] of Object.entries(messages)) {
-        console.log('Replacing key:', key, 'with value:', value);
-        updatedText = text.replaceAll(key, value);
+        text = text.replaceAll(key, value);
       }
 
-      console.log('Updated HTML text:', updatedText);
-
-      return { contents: updatedText, loader: 'text' };
+      return { contents: text, loader: 'text' };
     });
   },
 };

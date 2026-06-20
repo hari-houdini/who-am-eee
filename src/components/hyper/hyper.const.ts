@@ -5,6 +5,10 @@ import type {
   SpaceState,
 } from './hyper.types';
 
+/**
+ * Initial mutable state for the hyper-space animation loop.
+ * Copied (not referenced) at startup so each component instance owns its state.
+ */
 const INITIAL_SPACE_STATE: SpaceState = {
   scroll: 0,
   targetSpeed: 0,
@@ -13,12 +17,20 @@ const INITIAL_SPACE_STATE: SpaceState = {
   mouseY: 0,
 };
 
+/**
+ * Static scene configuration used by {@link initWorld} and the RAF loop.
+ *
+ * @remarks
+ * `itemCount` and `loopSize` are computed getters — they reflect the current
+ * state of {@link LABELS} and {@link CARDS} and must not be set manually.
+ */
 const SPACE_CONFIG: SpaceConfig = {
   starCount: 150,
   zGap: 1_200,
   camSpeed: 2.5,
   colors: ['#ff003c', '#00f3ff', '#ccff00', '#ffffff'],
 
+  /** Total item count across all scene labels and their associated cards. */
   get itemCount() {
     return (
       Object.values(LABELS).length +
@@ -26,11 +38,17 @@ const SPACE_CONFIG: SpaceConfig = {
     );
   },
 
+  /** Total Z depth of the looping scene in pixels. */
   get loopSize() {
     return this.itemCount * this.zGap;
   },
 };
 
+/**
+ * Named scene sections with display text and optional taglines.
+ * Each key corresponds to a depth position in the scene and optionally
+ * to an entry in {@link CARDS}.
+ */
 const LABELS: Label = {
   above_the_fold: {
     text: 'Hari H🍑udini',
@@ -64,6 +82,11 @@ const LABELS: Label = {
   },
 };
 
+/**
+ * Portfolio cards indexed by the section key they appear in.
+ * Cards within a section are placed at consecutive Z positions after the
+ * section's label, each offset by {@link SpaceConfig.zGap}.
+ */
 const CARDS: Cards = {
   about: [
     {
@@ -81,7 +104,7 @@ const CARDS: Cards = {
           <p>He is, by all accounts, a Senior Engineer who is one well-timed deadline away from actually shipping something.</p>
 
 
-          <em>Yeah, that’s me, a walking type-checking error completely devoid of a release strategy, and honestly? I'd do it all again. Probably am.</em>
+          <em>Yeah, that's me, a walking type-checking error completely devoid of a release strategy, and honestly? I'd do it all again. Probably am.</em>
         `,
       rotation: 5,
       size: 'm',
