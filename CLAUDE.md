@@ -15,9 +15,16 @@ webpack, vite, or esbuild.
 | Run dev server | `bun --hot run index.ts` |
 | Build | `bun run build.config.ts` |
 | Test | `bun test` |
+| Lint & format check | `bunx biome check src/` |
+| Lint & format fix | `bunx biome check --write src/` |
+| Type check | `bunx tsc --noEmit` |
 | Install deps | `bun install` |
 | Execute script | `bunx <package> <cmd>` |
 | Run a file | `bun <file>` |
+
+After every code change, run `bunx biome check src/` and resolve all errors before
+considering the task done. Use `bunx biome check --write src/` to auto-fix formatting
+and safe lint fixes. Also run `bunx tsc --noEmit` to confirm zero type errors.
 
 Bun APIs to use instead of third-party equivalents:
 

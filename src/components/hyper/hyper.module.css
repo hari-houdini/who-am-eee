@@ -79,9 +79,3 @@
   transform: translate(-50%, -50%);
   backface-visibility: hidden;
 }
-
-/* SVG icons slotted into <hyper-cell> live in this shadow DOM context.
-   ::slotted cannot pierce into SVG children, so we target them directly here. */
-hyper-cell [slot="hyper-cell-icon"] * {
-  fill: var(--bg);
-}
