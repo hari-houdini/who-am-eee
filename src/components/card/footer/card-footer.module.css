@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+.card-footer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+}
+
+.card-footer__tags {
+  color: var(--hyper-footer-text);
+}
+
+.card-footer__year {
+  color: var(--text);
+}

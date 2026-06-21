@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.about-me {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+p:last-of-type {
+  margin-bottom: 1rem;
+}
+
+em {
+  color: var(--accent);
+  font-style: italic;
+}

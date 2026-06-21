@@ -1,4 +1,3 @@
-import about from './about.html' with { type: 'text' };
 import type {
   Cards,
   Label,
@@ -99,9 +98,8 @@ const CARDS: Cards = {
       year: 'since 2018',
       x: -600,
       z: -2400,
-      content: `
-          ${about}
-        `,
+      bodyTag: 'about-me' as const,
+      content: '',
       rotation: 5,
       size: 'l',
     },
@@ -115,6 +113,7 @@ const CARDS: Cards = {
       x: 600,
       z: -4000,
       rotation: -3,
+      bodyTag: 'hyper-cells' as const,
       content: `${techStack}`,
       size: 'l',
     },
@@ -126,6 +125,7 @@ const CARDS: Cards = {
       x: -600,
       z: -4000,
       rotation: 3,
+      bodyTag: 'hyper-cells' as const,
       content: `${managementStack}`,
       size: 'l',
     },

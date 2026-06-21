@@ -1,71 +1,11 @@
 import Lenis from 'lenis';
+import { createCardElement } from '../card/card.factory';
 import {
   CARDS,
   INITIAL_SPACE_STATE,
   LABELS,
   SPACE_CONFIG,
 } from './hyper.const';
-import type { Card } from './hyper.types';
-
-/**
- * Builds a fully structured card DOM element without using `innerHTML`.
- *
- * Card body content (`card.content`) is an internal HTML string; it is
- * safely parsed via `DOMParser` and deep-cloned into the content container.
- *
- * @param card - Data for the card to render.
- * @returns A `<div class="card card--{size}">` element ready to be inserted.
- */
-function createCardElement(card: Card): HTMLDivElement {
-  const cardEl = document.createElement('div');
-  cardEl.classList.add('card', `card--${card.size}`);
-
-  const header = document.createElement('div');
-  header.className = 'card__header';
-
-  const idSpan = document.createElement('span');
-  idSpan.className = 'card__id';
-  idSpan.textContent = card.id;
-
-  const arrowSpan = document.createElement('span');
-  arrowSpan.textContent = '↗';
-
-  header.appendChild(idSpan);
-  header.appendChild(arrowSpan);
-
-  const heading = document.createElement('h2');
-  heading.className = 'card__heading';
-  heading.textContent = card.title;
-
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'card__content';
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(card.content, 'text/html');
-  Array.from(doc.body.childNodes).map((n) =>
-    contentDiv.appendChild(n.cloneNode(true)),
-  );
-
-  const footer = document.createElement('div');
-  footer.className = 'card__footer';
-
-  const tagsSpan = document.createElement('span');
-  tagsSpan.textContent = card.tags.join(' · ');
-  tagsSpan.className = 'card__tags';
-
-  const yearSpan = document.createElement('span');
-  yearSpan.textContent = card.year;
-  yearSpan.className = 'card__year';
-
-  footer.appendChild(tagsSpan);
-  footer.appendChild(yearSpan);
-
-  cardEl.appendChild(header);
-  cardEl.appendChild(heading);
-  cardEl.appendChild(contentDiv);
-  cardEl.appendChild(footer);
-
-  return cardEl;
-}
 
 /**
  * Populates the `#world` element with all scene items:

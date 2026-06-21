@@ -89,6 +89,10 @@
     cursor: crosshair;
   }
 
+  a {
+    text-decoration: none !important;
+  }
+
   .scroll-proxy {
     height: 10000vh;
     position: absolute;
