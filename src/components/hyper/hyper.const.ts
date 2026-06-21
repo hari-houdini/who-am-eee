@@ -67,7 +67,7 @@ const LABELS: Label = {
     text: 'Skill Issue',
   },
   spotify: {
-    text: 'Now Playing.mp3',
+    text: "I'm feeling lucky.mp3",
   },
   testimonials: {
     text: 'Victim Statements',
