@@ -113,28 +113,3 @@
     border-width: 0;
   }
 }
-
-@layer utilities {
-  .layout__skip-nav {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 0.5rem 1rem;
-    background: var(--accent);
-    color: #fff;
-    font-family: var(--font-code);
-    z-index: 9999;
-    transform: translateY(-100%);
-    transition: transform 0.2s;
-  }
-
-  .layout__skip-nav:focus {
-    transform: translateY(0);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .layout__skip-nav {
-      transition: none;
-    }
-  }
-}
