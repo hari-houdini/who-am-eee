@@ -1,0 +1,57 @@
+<div class="locked">
+  <div class="locked__content">
+    <svg viewBox="0 0 18 27" xmlns="http://www.w3.org/2000/svg" class="locked__svg" overflow="visible">
+      <title class="sr-only">Locked</title>
+      <defs>
+        <linearGradient id="G">
+          <stop offset="5%" stop-color="hsl(0,90%,40%)" />
+          <stop offset="10%" stop-color="hsl(0,90%,75%)" />
+          <stop offset="30%" stop-color="hsl(0,90%,55%)" />
+          <stop offset="70%" stop-color="hsl(0,90%,55%)" />
+          <stop offset="90%" stop-color="hsl(0,90%,75%)" />
+          <stop offset="95%" stop-color="hsl(0,90%,40%)" />
+        </linearGradient>
+      </defs>
+      <g id="lock" transform-origin="19 6">
+
+        <animateTransform attributeName="transform" type="rotate" calcMode="spline"
+          keySplines="0.5,0 0.5,1;0.5,0 0.5,1;0.5,0 0.5,1;0.5,0 0.5,1"
+          values="0 -10 0;-15 -10 0;10 -10 0;-5 -10 0;0 -10 0" begin="lock.mouseenter" dur="1s" restart="whenNotActive"
+          additive="sum" />
+        <g>
+          <path d="m14,23 v-12 c-1,-5 -9,-5 -10,0 v6" fill="none" stroke="#BBB" stroke-width="2.05">
+            <animate id="A1" attributeName="d" values="m14,23 v-12 c-1,-5 -9,-5 -10,0 v6;m14,23 v-12 c1,-5 9,-5 10,0 v6"
+              begin="A0.end" dur="0.5s" fill="freeze" />
+            <animate attributeName="d" calcMode="discrete" to="m14,23 v-12 c-1,-5 -9,-5 -10,0 v6" begin="A3.end"
+              dur="2s" fill="freeze" />
+          </path>
+          <path d="m4,19 h-1 v-1 h0 v-0.5 l0,-0.5 v-1 h2 v1 l-1,0.5 v0.5 h1 v1 z" fill="#BBB">
+            <animate attributeName="d"
+              values="m4,19 h-1 v-1 h0 v-0.5 l0,-0.5 v-1 h2 v1 l-1,0.5 v0.5 h1 v1 z;m14,19 h-1 v-1 h0 v-0.5 l0,-0.5 v-1 h2 v1 l0,0.5 v0.5 h0 v1 z;m24,19 h-1 v-1 h1 v-0.5 l-1,-0.5 v-1 h2 v1 l0,0.5 v0.5 h0 v1 z"
+              begin="A0.end" dur="0.5s" fill="freeze" />
+            <animate attributeName="d" calcMode="discrete"
+              to="m4,19 h-1 v-1 h0 v-0.5 l0,-0.5 v-1 h2 v1 l-1,0.5 v0.5 h1 v1 z" begin="A3.end" dur="2s"
+              fill="freeze" />
+          </path>
+
+          <animateTransform id="A0" attributeName="transform" type="translate" to="0 -5" begin="start.begin" dur="0.25s"
+            fill="freeze" />
+          <animateTransform attributeName="transform" type="translate" calcMode="discrete" to="0 0" begin="A3.end"
+            dur="2s" fill="freeze" />
+        </g>
+        <rect x="1" y="16" width="16" height="10" rx="0.5" ry="0.5" fill="url(#G)" />
+
+        <animateTransform id="A2" attributeName="transform" type="rotate" calcMode="spline"
+          keySplines="0.5,0 0.5,1;0.5,0 0.5,1;0.5,0 0.5,1" values="0;-50;-40;-45" begin="A1.end" dur="1s" additive="sum"
+          fill="freeze" />
+        <animateTransform id="A3" attributeName="transform" type="translate" by="-18 18" begin="A2.end" dur="0.5s"
+          additive="sum" fill="freeze" />
+        <animate attributeName="opacity" to="0" begin="A2.end" dur="0.5s" fill="freeze" />
+
+        <animateTransform attributeName="transform" type="rotate" calcMode="discrete" to="0" begin="A3.end" dur="2s"
+          fill="freeze" />
+        <animate attributeName="opacity" calcMode="discrete" to="1" begin="A3.end" dur="2s" fill="freeze" />
+      </g>
+    </svg>
+  </div>
+</div>

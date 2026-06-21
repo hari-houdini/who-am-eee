@@ -32,6 +32,7 @@ type Card = {
     | 'about-me'
     | 'tech-skills'
     | 'management-skills'
+    | 'forbidden-space'
     | 'social-space';
   /** HTML string for the card body content, parsed via DOMParser. */
   content: string;

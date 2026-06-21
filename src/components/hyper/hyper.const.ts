@@ -144,16 +144,16 @@ const CARDS: Cards = {
   ],
   job_stats: [
     {
-      id: 'PROJ.005',
-      title: 'Job Stats',
-      tags: ['Python', 'ML'],
-      year: '2024',
+      id: 'PROJ.JOB_APPLICATIONS',
+      title: 'Luck so far',
+      tags: ['Ghostings', 'Rejections', 'Pending'],
+      year: 'Sign an NDA to unlock',
       x: 600,
       z: -4000,
       rotation: -3,
-      content:
-        '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>',
-      size: 'l',
+      bodyTag: 'forbidden-space' as const,
+      content: '',
+      size: 's',
     },
   ],
   spotify: [

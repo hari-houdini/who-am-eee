@@ -1,7 +1,7 @@
-import cssText from './socials.module.css' with { type: 'text' };
-import templateHtml from './socials.template.html' with { type: 'text' };
+import cssText from './locked.module.css' with { type: 'text' };
+import templateHtml from './locked.template.html' with { type: 'text' };
 
-/** Parsed CSS stylesheet shared across all `<social-space>` instances. */
+/** Parsed CSS stylesheet shared across all `<forbidden-space>` instances. */
 const sheet: CSSStyleSheet = (() => {
   const s = new CSSStyleSheet();
   s.replaceSync(cssText.toString());
@@ -9,15 +9,12 @@ const sheet: CSSStyleSheet = (() => {
 })();
 
 /**
- * `<social-space>` — self-contained socials grid component.
- *
- * Renders a static grid of `<hyper-cell>` items wrapped in `<hyper-cells>`.
- * Content is defined in `socials.template.html` and injected into shadow DOM.
+ * `<forbidden-space>` — self-contained component, to hide content.
  * No observed attributes or consumer-facing slots — fully self-contained.
  *
- * @customElement social-space
+ * @customElement forbidden-space
  */
-class SocialSpace extends HTMLElement {
+class ForbiddenSpace extends HTMLElement {
   constructor() {
     super();
     const shadow = this.attachShadow({ mode: 'open' });
@@ -57,4 +54,4 @@ class SocialSpace extends HTMLElement {
   ): void {}
 }
 
-customElements.define('social-space', SocialSpace);
+customElements.define('forbidden-space', ForbiddenSpace);

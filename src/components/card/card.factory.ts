@@ -36,6 +36,10 @@ function createCardElement(card: Card): HTMLElement {
     const inner = document.createElement('management-skills');
     inner.setAttribute('slot', 'body-content');
     cardEl.appendChild(inner);
+  } else if (card.bodyTag === 'forbidden-space') {
+    const inner = document.createElement('forbidden-space');
+    inner.setAttribute('slot', 'body-content');
+    cardEl.appendChild(inner);
   } else if (card.bodyTag === 'social-space') {
     const inner = document.createElement('social-space');
     inner.setAttribute('slot', 'body-content');
