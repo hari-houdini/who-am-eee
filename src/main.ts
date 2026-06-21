@@ -1,6 +1,7 @@
 import './components/about-me/about-me.element';
 import './components/skills/tech-skills/tech-skills.element';
 import './components/skills/management-skills/management-skills.element';
+import './components/socials/socials.element';
 import './components/hyper-cells/cell/hyper-cell.element';
 import './components/hyper-cells/hyper-cells.element';
 import './components/card/header/card-header.element';

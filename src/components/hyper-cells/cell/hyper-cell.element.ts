@@ -32,8 +32,11 @@ class HyperCell extends HTMLElement {
     const shadow = this.attachShadow({ mode: 'open' });
 
     const parser = new DOMParser();
-    const doc = parser.parseFromString(templateHtml as unknown as string, 'text/html');
-    Array.from(doc.body.childNodes).forEach((n) =>
+    const doc = parser.parseFromString(
+      templateHtml as unknown as string,
+      'text/html',
+    );
+    Array.from(doc.body.childNodes).map((n) =>
       shadow.appendChild(n.cloneNode(true)),
     );
 
@@ -77,5 +80,3 @@ class HyperCell extends HTMLElement {
 }
 
 customElements.define('hyper-cell', HyperCell);
-
-export {};
