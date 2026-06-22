@@ -1,3 +1,4 @@
+import accordionHtml from './accordian.html' with { type: 'text' };
 import type {
   Cards,
   Label,

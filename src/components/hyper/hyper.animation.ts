@@ -1,5 +1,6 @@
 import Lenis from 'lenis';
 import { createCardElement } from '../card/card.factory';
+import { ParticleNetwork } from './constellation.animation';
 import {
   CARDS,
   INITIAL_SPACE_STATE,
@@ -120,6 +121,12 @@ function loadHyperSpaceAnimation(context: HTMLElement): void {
   window.addEventListener('mousemove', (e: MouseEvent) => {
     state.mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
     state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  // --- Initialization ---
+  window.addEventListener('DOMContentLoaded', () => {
+    // 4. Simply pass the canvas DOM ID to instantiate
+    new ParticleNetwork('constellation', context.shadowRoot);
   });
 
   rafLoop(lenis, state, context.shadowRoot);
