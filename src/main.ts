@@ -10,6 +10,7 @@ import "./components/card/body/card-body.element";
 import "./components/card/footer/card-footer.element";
 import "./components/card/hyper-card.element";
 import "./components/photo-gallery/photo-gallery.element";
+import "./components/card-modal/card-modal.element";
 import "./components/hyper/hyper.element";
 
 console.log("Hello, world!");

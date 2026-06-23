@@ -128,6 +128,13 @@ function loadHyperSpaceAnimation(context: HTMLElement): void {
 	});
 
 	rafLoop(lenis, state, context.shadowRoot);
+
+	window.addEventListener("card:modal-opened", () => {
+		lenis.stop();
+	});
+	window.addEventListener("card:modal-closed", () => {
+		lenis.start();
+	});
 }
 
 /**

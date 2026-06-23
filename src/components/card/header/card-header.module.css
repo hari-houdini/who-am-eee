@@ -20,4 +20,9 @@
 .card-header__arrow {
 	color: var(--text);
 	font-size: 1rem;
+	display: none;
+}
+
+:host([modal]) .card-header__arrow {
+	display: block;
 }

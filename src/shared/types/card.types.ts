@@ -38,6 +38,11 @@ type Card = {
 		| "photo-gallery";
 	/** HTML string for the card body content, parsed via DOMParser. */
 	content: string;
+	/**
+	 * When `true`, clicking the card opens a `<card-modal>` overlay.
+	 * Cards without this property are not interactive.
+	 */
+	modal?: boolean;
 	/** Initial rotation of the card in degrees around the Z axis. */
 	rotation: number;
 	/**

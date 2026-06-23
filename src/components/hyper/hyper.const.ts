@@ -91,6 +91,7 @@ const CARDS: Cards = {
 			z: -2400,
 			bodyTag: "about-me" as const,
 			content: "",
+			modal: true,
 			rotation: 5,
 			size: "l",
 		},
@@ -106,6 +107,7 @@ const CARDS: Cards = {
 			rotation: -3,
 			bodyTag: "tech-skills" as const,
 			content: "",
+			modal: true,
 			size: "l",
 		},
 		{
@@ -118,6 +120,7 @@ const CARDS: Cards = {
 			rotation: 3,
 			bodyTag: "management-skills" as const,
 			content: "",
+			modal: true,
 			size: "l",
 		},
 	],
@@ -136,6 +139,7 @@ const CARDS: Cards = {
 			x: -600,
 			z: -5600,
 			rotation: 4,
+			modal: true,
 			content:
 				"<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>",
 			size: "l",
@@ -153,6 +157,7 @@ const CARDS: Cards = {
 			x: -600,
 			z: -5600,
 			rotation: 4,
+			modal: true,
 			content:
 				"<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>",
 			size: "l",
@@ -165,6 +170,7 @@ const CARDS: Cards = {
 			x: -600,
 			z: -5600,
 			rotation: 4,
+			modal: true,
 			content:
 				"<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>",
 			size: "l",
@@ -200,7 +206,7 @@ const CARDS: Cards = {
 	],
 	testimonials: [
 		{
-			id: "PROJ.007",
+			id: "PROJ.TESTIMONIALS",
 			title: "Testimonials",
 			tags: ["Python", "ML"],
 			year: "2024",
@@ -223,21 +229,23 @@ const CARDS: Cards = {
 			rotation: -3,
 			bodyTag: "social-space" as const,
 			content: "",
+			modal: true,
 			size: "m",
 		},
 	],
 	footer: [
 		{
 			id: "PROJ.GALLERY",
-			title: "Lottie Appreciation Post",
+			title: "Here's your gift",
 			tags: ["Good Girl", "Very Important"],
 			year: "2024",
-			x: 600,
+			x: 0,
 			z: -4000,
 			rotation: -3,
 			bodyTag: "photo-gallery" as const,
 			content: "",
-			size: "m",
+			modal: true,
+			size: "l",
 		},
 	],
 };

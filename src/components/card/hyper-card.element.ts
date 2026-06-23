@@ -1,3 +1,4 @@
+import type { CardOpenDetail } from "../../shared/types/card-modal.types";
 import cssText from "./hyper-card.module.css" with { type: "text" };
 import templateHtml from "./hyper-card.template.html" with { type: "text" };
 
@@ -16,6 +17,10 @@ const sheet: CSSStyleSheet = (() => {
  * A `body-content` named slot is forwarded through `<card-body>` to display
  * consumer-provided body elements (e.g. `<about-me>`, `<hyper-cells>`, or a `<div>`).
  *
+ * When the `modal` attribute is present, the card becomes an interactive button
+ * that dispatches `card:open` on `window`, consumed by `<card-modal>`.
+ * The `↗` arrow in `<card-header>` becomes visible only on modal-enabled cards via CSS.
+ *
  * @customElement hyper-card
  * @remarks
  * Sub-components must be registered before `<hyper-card>` connects to the DOM.
@@ -27,6 +32,12 @@ class HyperCard extends HTMLElement {
 		return ["size", "card-id", "heading", "tags", "year"];
 	}
 
+	/**
+	 * AbortController for the modal click/keyboard listeners.
+	 * `undefined` when this card has no `modal` attribute.
+	 */
+	#modalAc: AbortController | undefined = undefined;
+
 	constructor() {
 		super();
 		const shadow = this.attachShadow({ mode: "open" });
@@ -36,9 +47,9 @@ class HyperCard extends HTMLElement {
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
+		Array.from(doc.body.childNodes).forEach((n) => {
+			shadow.appendChild(n.cloneNode(true));
+		});
 
 		if (shadow.adoptedStyleSheets !== undefined) {
 			shadow.adoptedStyleSheets = [sheet];
@@ -50,15 +61,20 @@ class HyperCard extends HTMLElement {
 	}
 
 	/**
-	 * Forwards own attributes to `<card-header>`, `<card-body>`, and `<card-footer>`
-	 * once the element is connected and sub-components are ready.
+	 * Forwards own attributes to sub-components and, for modal-enabled cards,
+	 * wires up click and keyboard interaction.
 	 */
 	connectedCallback(): void {
 		this.#syncSubComponents();
+		if (this.hasAttribute("modal")) {
+			this.#bindModalInteraction();
+		}
 	}
 
-	/** No-op: no listeners or RAF loops to clean up. */
-	disconnectedCallback(): void {}
+	/** Aborts modal interaction listeners when the element leaves the DOM. */
+	disconnectedCallback(): void {
+		this.#modalAc?.abort();
+	}
 
 	/** No-op: no document-adoption behaviour. */
 	adoptedCallback(): void {}
@@ -80,6 +96,8 @@ class HyperCard extends HTMLElement {
 
 	/**
 	 * Reads own observed attributes and sets them on the shadow DOM sub-components.
+	 * Also forwards the `modal` attribute to `<card-header>` so the arrow indicator
+	 * becomes visible via `:host([modal]) .card-header__arrow { display: block }`.
 	 *
 	 * @remarks
 	 * Called from both {@link connectedCallback} and {@link attributeChangedCallback}
@@ -92,6 +110,11 @@ class HyperCard extends HTMLElement {
 		const header = root.querySelector<HTMLElement>("card-header");
 		if (header) {
 			header.setAttribute("card-id", this.getAttribute("card-id") ?? "");
+			if (this.hasAttribute("modal")) {
+				header.setAttribute("modal", "");
+			} else {
+				header.removeAttribute("modal");
+			}
 		}
 
 		const body = root.querySelector<HTMLElement>("card-body");
@@ -105,6 +128,45 @@ class HyperCard extends HTMLElement {
 			footer.setAttribute("year", this.getAttribute("year") ?? "");
 		}
 	}
+
+	/**
+	 * Makes this card a keyboard-focusable button and registers `click` / `keydown`
+	 * listeners that dispatch `card:open` on `window`.
+	 */
+	#bindModalInteraction(): void {
+		this.setAttribute("role", "button");
+		this.setAttribute("tabindex", "0");
+		this.#modalAc = new AbortController();
+		const { signal } = this.#modalAc;
+		this.addEventListener("click", this.#dispatchOpen, { signal });
+		this.addEventListener("keydown", this.#handleKeyActivation, { signal });
+	}
+
+	/**
+	 * Dispatches `card:open` on `window` with the card's heading and body-tag
+	 * so `<card-modal>` can populate and display the correct content.
+	 */
+	readonly #dispatchOpen = (): void => {
+		const detail: CardOpenDetail = {
+			heading: this.getAttribute("heading") ?? "",
+			bodyTag: this.getAttribute("body-tag") ?? "",
+		};
+		window.dispatchEvent(
+			new CustomEvent<CardOpenDetail>("card:open", { detail }),
+		);
+	};
+
+	/**
+	 * Activates the card on Enter or Space, matching native button keyboard behaviour.
+	 *
+	 * @param e - The keyboard event from the card host element.
+	 */
+	readonly #handleKeyActivation = (e: KeyboardEvent): void => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			this.#dispatchOpen();
+		}
+	};
 }
 
 customElements.define("hyper-card", HyperCard);
