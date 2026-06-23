@@ -1,4 +1,5 @@
-import accordionHtml from './accordian.html' with { type: 'text' };
+// import accordionHtml from './accordian.html' with { type: 'text' };
+import galleryHtml from './gallery.html' with { type: 'text' };
 import type {
   Cards,
   Label,
@@ -249,8 +250,7 @@ const CARDS: Cards = {
       x: 600,
       z: -4000,
       rotation: -3,
-      bodyTag: 'social-space' as const,
-      content: '',
+      content: `${galleryHtml}`,
       size: 'm',
     },
   ],
