@@ -1,15 +1,15 @@
 :host {
-  display: block;
-  width: 100%;
+	display: block;
+	width: 100%;
 }
 
 .hyper-cells {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }

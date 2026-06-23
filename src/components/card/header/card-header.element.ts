@@ -1,11 +1,11 @@
-import cssText from './card-header.module.css' with { type: 'text' };
-import templateHtml from './card-header.template.html' with { type: 'text' };
+import cssText from "./card-header.module.css" with { type: "text" };
+import templateHtml from "./card-header.template.html" with { type: "text" };
 
 /** Parsed CSS stylesheet shared across all `<card-header>` instances. */
 const sheet: CSSStyleSheet = (() => {
-  const s = new CSSStyleSheet();
-  s.replaceSync(cssText.toString());
-  return s;
+	const s = new CSSStyleSheet();
+	s.replaceSync(cssText.toString());
+	return s;
 })();
 
 /**
@@ -18,61 +18,60 @@ const sheet: CSSStyleSheet = (() => {
  * @customElement card-header
  */
 class CardHeader extends HTMLElement {
-  /** Attributes that trigger {@link attributeChangedCallback}. */
-  static get observedAttributes(): string[] {
-    return ['card-id'];
-  }
+	/** Attributes that trigger {@link attributeChangedCallback}. */
+	static get observedAttributes(): string[] {
+		return ["card-id"];
+	}
 
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: 'open' });
+	constructor() {
+		super();
+		const shadow = this.attachShadow({ mode: "open" });
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(
-      templateHtml as unknown as string,
-      'text/html',
-    );
-    Array.from(doc.body.childNodes).map((n) =>
-      shadow.appendChild(n.cloneNode(true)),
-    );
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(
+			templateHtml as unknown as string,
+			"text/html",
+		);
+		Array.from(doc.body.childNodes).map((n) =>
+			shadow.appendChild(n.cloneNode(true)),
+		);
 
-    if (shadow.adoptedStyleSheets !== undefined) {
-      shadow.adoptedStyleSheets = [sheet];
-    } else {
-      const style = document.createElement('style');
-      style.textContent = cssText.toString();
-      shadow.appendChild(style);
-    }
-  }
+		if (shadow.adoptedStyleSheets !== undefined) {
+			shadow.adoptedStyleSheets = [sheet];
+		} else {
+			const style = document.createElement("style");
+			style.textContent = cssText.toString();
+			shadow.appendChild(style);
+		}
+	}
 
-  /** No-op: attribute-driven component, no DOM side-effects on connect. */
-  connectedCallback(): void {}
+	/** No-op: attribute-driven component, no DOM side-effects on connect. */
+	connectedCallback(): void {}
 
-  /** No-op: no listeners to detach. */
-  disconnectedCallback(): void {}
+	/** No-op: no listeners to detach. */
+	disconnectedCallback(): void {}
 
-  /** No-op: no document-adoption behaviour. */
-  adoptedCallback(): void {}
+	/** No-op: no document-adoption behaviour. */
+	adoptedCallback(): void {}
 
-  /**
-   * Syncs observed attribute changes to the shadow DOM.
-   *
-   * @param name - The changed attribute name.
-   * @param _oldValue - Previous attribute value (unused).
-   * @param newValue - New attribute value to apply.
-   */
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
-    if (name === 'card-id') {
-      const idEl = this.shadowRoot?.querySelector<HTMLElement>(
-        '.card-header__id',
-      );
-      if (idEl) idEl.textContent = newValue ?? '';
-    }
-  }
+	/**
+	 * Syncs observed attribute changes to the shadow DOM.
+	 *
+	 * @param name - The changed attribute name.
+	 * @param _oldValue - Previous attribute value (unused).
+	 * @param newValue - New attribute value to apply.
+	 */
+	attributeChangedCallback(
+		name: string,
+		_oldValue: string | null,
+		newValue: string | null,
+	): void {
+		if (name === "card-id") {
+			const idEl =
+				this.shadowRoot?.querySelector<HTMLElement>(".card-header__id");
+			if (idEl) idEl.textContent = newValue ?? "";
+		}
+	}
 }
 
-customElements.define('card-header', CardHeader);
+customElements.define("card-header", CardHeader);

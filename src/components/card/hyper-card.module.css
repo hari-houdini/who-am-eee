@@ -1,80 +1,80 @@
 :host {
-  display: block;
-  transform: translate(-50%, -50%);
-  width: 320px;
+	display: block;
+	transform: translate(-50%, -50%);
+	width: 320px;
 }
 
 :host([size="s"]) {
-  width: 25vw;
+	width: 25vw;
 }
 
 :host([size="m"]) {
-  width: 40vw;
+	width: 40vw;
 }
 
 :host([size="l"]) {
-  width: 50vw;
+	width: 50vw;
 }
 
 .hyper-card {
-  width: 100%;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  position: relative;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow:
-    0 0 0 1px var(--hyper-card-shadow),
-    0 20px 50px var(--hyper-card-shadow);
+	width: 100%;
+	background: var(--card-bg);
+	border: 1px solid var(--border);
+	position: relative;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	box-shadow:
+		0 0 0 1px var(--hyper-card-shadow),
+		0 20px 50px var(--hyper-card-shadow);
 }
 
 @media (hover: hover) {
-  .hyper-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 30px var(--hyper-card-hover-shadow);
-    background: var(--hyper-card-bg-hover);
-    z-index: 100;
-  }
+	.hyper-card:hover {
+		border-color: var(--accent);
+		box-shadow: 0 0 30px var(--hyper-card-hover-shadow);
+		background: var(--hyper-card-bg-hover);
+		z-index: 100;
+	}
 }
 
 .hyper-card::before,
 .hyper-card::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 1px solid transparent;
-  opacity: 0;
-  transition: opacity 0.3s;
+	content: "";
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border: 1px solid transparent;
+	opacity: 0;
+	transition: opacity 0.3s;
 }
 
 .hyper-card::before {
-  top: -1px;
-  left: -1px;
-  border-top-color: var(--text);
-  border-left-color: var(--text);
+	top: -1px;
+	left: -1px;
+	border-top-color: var(--text);
+	border-left-color: var(--text);
 }
 
 .hyper-card::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom-color: var(--text);
-  border-right-color: var(--text);
+	bottom: -1px;
+	right: -1px;
+	border-bottom-color: var(--text);
+	border-right-color: var(--text);
 }
 
 .hyper-card:hover::before,
 .hyper-card:hover::after {
-  opacity: 1;
-  border-color: var(--accent);
+	opacity: 1;
+	border-color: var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hyper-card::before,
-  .hyper-card::after {
-    transition: none;
-  }
+	.hyper-card::before,
+	.hyper-card::after {
+		transition: none;
+	}
 }

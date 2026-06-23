@@ -1,7 +1,7 @@
-import cssText from "./socials.module.css" with { type: "text" };
-import templateHtml from "./socials.template.html" with { type: "text" };
+import cssText from "./photo-gallery.module.css" with { type: "text" };
+import templateHtml from "./photo-gallery.template.html" with { type: "text" };
 
-/** Parsed CSS stylesheet shared across all `<social-space>` instances. */
+/** Parsed CSS stylesheet shared across all `<photo-gallery>` instances. */
 const sheet: CSSStyleSheet = (() => {
 	const s = new CSSStyleSheet();
 	s.replaceSync(cssText.toString());
@@ -9,15 +9,15 @@ const sheet: CSSStyleSheet = (() => {
 })();
 
 /**
- * `<social-space>` — self-contained socials grid component.
+ * `<photo-gallery>` — self-contained dog photo gallery component.
  *
- * Renders a static grid of `<hyper-cell>` items wrapped in `<hyper-cells>`.
- * Content is defined in `socials.template.html` and injected into shadow DOM.
+ * Renders a static grid of four images wrapped in `.gallery` layout.
+ * Content is defined in `photo-gallery.template.html` and injected into shadow DOM.
  * No observed attributes or consumer-facing slots — fully self-contained.
  *
- * @customElement social-space
+ * @customElement photo-gallery
  */
-class SocialSpace extends HTMLElement {
+class PhotoGallery extends HTMLElement {
 	constructor() {
 		super();
 		const shadow = this.attachShadow({ mode: "open" });
@@ -57,4 +57,4 @@ class SocialSpace extends HTMLElement {
 	): void {}
 }
 
-customElements.define("social-space", SocialSpace);
+customElements.define("photo-gallery", PhotoGallery);

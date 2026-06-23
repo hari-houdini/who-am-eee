@@ -1,11 +1,11 @@
-import cssText from './hyper-cell.module.css' with { type: 'text' };
-import templateHtml from './hyper-cell.template.html' with { type: 'text' };
+import cssText from "./hyper-cell.module.css" with { type: "text" };
+import templateHtml from "./hyper-cell.template.html" with { type: "text" };
 
 /** Parsed CSS stylesheet shared across all `<hyper-cell>` instances. */
 const sheet: CSSStyleSheet = (() => {
-  const s = new CSSStyleSheet();
-  s.replaceSync(cssText.toString());
-  return s;
+	const s = new CSSStyleSheet();
+	s.replaceSync(cssText.toString());
+	return s;
 })();
 
 /**
@@ -22,61 +22,60 @@ const sheet: CSSStyleSheet = (() => {
  * @customElement hyper-cell
  */
 class HyperCell extends HTMLElement {
-  /** Attributes that trigger {@link attributeChangedCallback}. */
-  static get observedAttributes(): string[] {
-    return ['href'];
-  }
+	/** Attributes that trigger {@link attributeChangedCallback}. */
+	static get observedAttributes(): string[] {
+		return ["href"];
+	}
 
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: 'open' });
+	constructor() {
+		super();
+		const shadow = this.attachShadow({ mode: "open" });
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(
-      templateHtml as unknown as string,
-      'text/html',
-    );
-    Array.from(doc.body.childNodes).map((n) =>
-      shadow.appendChild(n.cloneNode(true)),
-    );
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(
+			templateHtml as unknown as string,
+			"text/html",
+		);
+		Array.from(doc.body.childNodes).map((n) =>
+			shadow.appendChild(n.cloneNode(true)),
+		);
 
-    if (shadow.adoptedStyleSheets !== undefined) {
-      shadow.adoptedStyleSheets = [sheet];
-    } else {
-      const style = document.createElement('style');
-      style.textContent = cssText.toString();
-      shadow.appendChild(style);
-    }
-  }
+		if (shadow.adoptedStyleSheets !== undefined) {
+			shadow.adoptedStyleSheets = [sheet];
+		} else {
+			const style = document.createElement("style");
+			style.textContent = cssText.toString();
+			shadow.appendChild(style);
+		}
+	}
 
-  /** No-op: href is set via attribute before or at connect time. */
-  connectedCallback(): void {}
+	/** No-op: href is set via attribute before or at connect time. */
+	connectedCallback(): void {}
 
-  /** No-op: no listeners to detach. */
-  disconnectedCallback(): void {}
+	/** No-op: no listeners to detach. */
+	disconnectedCallback(): void {}
 
-  /** No-op: no document-adoption behaviour. */
-  adoptedCallback(): void {}
+	/** No-op: no document-adoption behaviour. */
+	adoptedCallback(): void {}
 
-  /**
-   * Forwards the `href` attribute to the inner `<a>` element in shadow DOM.
-   *
-   * @param name - The changed attribute name.
-   * @param _oldValue - Previous value (unused).
-   * @param newValue - New value to apply.
-   */
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
-    if (name === 'href') {
-      const link = this.shadowRoot?.querySelector<HTMLAnchorElement>(
-        '.hyper-cell__link',
-      );
-      if (link) link.href = newValue ?? '';
-    }
-  }
+	/**
+	 * Forwards the `href` attribute to the inner `<a>` element in shadow DOM.
+	 *
+	 * @param name - The changed attribute name.
+	 * @param _oldValue - Previous value (unused).
+	 * @param newValue - New value to apply.
+	 */
+	attributeChangedCallback(
+		name: string,
+		_oldValue: string | null,
+		newValue: string | null,
+	): void {
+		if (name === "href") {
+			const link =
+				this.shadowRoot?.querySelector<HTMLAnchorElement>(".hyper-cell__link");
+			if (link) link.href = newValue ?? "";
+		}
+	}
 }
 
-customElements.define('hyper-cell', HyperCell);
+customElements.define("hyper-cell", HyperCell);

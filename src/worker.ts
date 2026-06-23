@@ -6,8 +6,8 @@
  * The implementation is currently commented out pending Spotify OAuth setup.
  */
 
-import { secrets } from 'bun';
-import { SpotifyService } from './spotify.service';
+import { secrets } from "bun";
+import { SpotifyService } from "./spotify.service";
 
 // let spotifyClientId: string | null = await secrets.get({
 //   service: 'spotify',

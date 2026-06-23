@@ -1,11 +1,11 @@
-import cssText from './about-me.module.css' with { type: 'text' };
-import templateHtml from './about-me.template.html' with { type: 'text' };
+import cssText from "./about-me.module.css" with { type: "text" };
+import templateHtml from "./about-me.template.html" with { type: "text" };
 
 /** Parsed CSS stylesheet shared across all `<about-me>` instances. */
 const sheet: CSSStyleSheet = (() => {
-  const s = new CSSStyleSheet();
-  s.replaceSync(cssText.toString());
-  return s;
+	const s = new CSSStyleSheet();
+	s.replaceSync(cssText.toString());
+	return s;
 })();
 
 /**
@@ -17,43 +17,43 @@ const sheet: CSSStyleSheet = (() => {
  * @customElement about-me
  */
 class AboutMe extends HTMLElement {
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: 'open' });
+	constructor() {
+		super();
+		const shadow = this.attachShadow({ mode: "open" });
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(
-      templateHtml as unknown as string,
-      'text/html',
-    );
-    Array.from(doc.body.childNodes).map((n) =>
-      shadow.appendChild(n.cloneNode(true)),
-    );
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(
+			templateHtml as unknown as string,
+			"text/html",
+		);
+		Array.from(doc.body.childNodes).map((n) =>
+			shadow.appendChild(n.cloneNode(true)),
+		);
 
-    if (shadow.adoptedStyleSheets !== undefined) {
-      shadow.adoptedStyleSheets = [sheet];
-    } else {
-      const style = document.createElement('style');
-      style.textContent = cssText.toString();
-      shadow.appendChild(style);
-    }
-  }
+		if (shadow.adoptedStyleSheets !== undefined) {
+			shadow.adoptedStyleSheets = [sheet];
+		} else {
+			const style = document.createElement("style");
+			style.textContent = cssText.toString();
+			shadow.appendChild(style);
+		}
+	}
 
-  /** No-op: component is fully static, no setup needed on connection. */
-  connectedCallback(): void {}
+	/** No-op: component is fully static, no setup needed on connection. */
+	connectedCallback(): void {}
 
-  /** No-op: no listeners or RAF loops to clean up. */
-  disconnectedCallback(): void {}
+	/** No-op: no listeners or RAF loops to clean up. */
+	disconnectedCallback(): void {}
 
-  /** No-op: component ignores document adoption. */
-  adoptedCallback(): void {}
+	/** No-op: component ignores document adoption. */
+	adoptedCallback(): void {}
 
-  /** No-op: no observed attributes. */
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {}
+	/** No-op: no observed attributes. */
+	attributeChangedCallback(
+		_name: string,
+		_oldValue: string | null,
+		_newValue: string | null,
+	): void {}
 }
 
-customElements.define('about-me', AboutMe);
+customElements.define("about-me", AboutMe);
