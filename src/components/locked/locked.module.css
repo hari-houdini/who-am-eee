@@ -8,6 +8,6 @@
 	height: 100%;
 
 	.locked__svg {
-		width: 200px;
+		width: clamp(100px, 30vw, 200px);
 	}
 }

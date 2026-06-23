@@ -65,8 +65,8 @@
 
     /* - CARDS - */
     --card-bg: rgba(10, 10, 10, 0.4);
-    --card-height: 150px;
-    --card-width: 300px;
+    --card-height: clamp(100px, 11vw, 150px);
+    --card-width: clamp(180px, 22vw, 300px);
   }
 }
 

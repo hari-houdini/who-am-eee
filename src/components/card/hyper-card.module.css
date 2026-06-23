@@ -1,19 +1,19 @@
 :host {
 	display: block;
 	transform: translate(-50%, -50%);
-	width: 320px;
+	width: clamp(200px, 75vw, 320px);
 }
 
 :host([size="s"]) {
-	width: 25vw;
+	width: clamp(200px, 60vw, 360px);
 }
 
 :host([size="m"]) {
-	width: 40vw;
+	width: clamp(260px, 75vw, 576px);
 }
 
 :host([size="l"]) {
-	width: 50vw;
+	width: clamp(300px, 85vw, 720px);
 }
 
 .hyper-card {
@@ -21,7 +21,7 @@
 	background: var(--card-bg);
 	border: 1px solid var(--border);
 	position: relative;
-	padding: 2rem;
+	padding: clamp(1rem, 3vw, 2rem);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;

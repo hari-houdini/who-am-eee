@@ -11,8 +11,8 @@
 	justify-content: center;
 	flex-wrap: wrap;
 	overflow: hidden;
-	padding: 20px;
-	padding-bottom: 10rem;
+	padding: clamp(10px, 3vw, 20px);
+	padding-bottom: clamp(4rem, 11vw, 10rem);
 	transform-style: preserve-3d;
 }
 
@@ -32,8 +32,8 @@
 }
 
 .gallery__image {
-	max-width: 400px;
-	max-height: 400px;
+	max-width: clamp(150px, 40vw, 400px);
+	max-height: clamp(150px, 40vw, 400px);
 	transition: filter 0.5s;
 	vertical-align: top;
 	filter: saturate(40%) sepia(30%) hue-rotate(5deg);

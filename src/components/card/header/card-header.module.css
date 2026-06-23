@@ -4,8 +4,8 @@
 
 .card-header {
 	border-bottom: 1px solid var(--border);
-	padding-bottom: 1rem;
-	margin-bottom: 1rem;
+	padding-bottom: clamp(0.5rem, 2vw, 1rem);
+	margin-bottom: clamp(0.5rem, 2vw, 1rem);
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -14,12 +14,12 @@
 .card-header__id {
 	font-family: var(--font-code);
 	color: var(--accent);
-	font-size: 0.8rem;
+	font-size: clamp(0.65rem, 1.5vw, 0.8rem);
 }
 
 .card-header__arrow {
 	color: var(--text);
-	font-size: 1rem;
+	font-size: clamp(0.8rem, 1.5vw, 1rem);
 	display: none;
 }
 

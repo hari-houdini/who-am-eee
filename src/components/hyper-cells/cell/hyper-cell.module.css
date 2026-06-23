@@ -6,7 +6,7 @@
 	position: relative;
 	width: var(--card-width);
 	height: var(--card-height);
-	margin: 1rem;
+	margin: clamp(0.5rem, 1.5vw, 1rem);
 	border-radius: 0.5rem;
 	background: var(--card-bg);
 	box-shadow: 0 0 0 1px var(--border);
@@ -79,18 +79,18 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 3.5rem;
-	height: 3.5rem;
+	width: clamp(2rem, 4.5vw, 3.5rem);
+	height: clamp(2rem, 4.5vw, 3.5rem);
 }
 
 ::slotted([slot="hyper-cell-icon"]) {
-	width: 3rem;
-	height: 3rem;
+	width: clamp(1.5rem, 4vw, 3rem);
+	height: clamp(1.5rem, 4vw, 3rem);
 	display: block;
 }
 
 .hyper-cell__label {
-	font-size: 1.5rem;
+	font-size: clamp(1rem, 2.5vw, 1.5rem);
 	line-height: 1.5;
 	margin: 0;
 	text-transform: uppercase;
