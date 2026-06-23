@@ -16,12 +16,6 @@ type Card = {
 	/** Vertical offset in pixels from the scene origin. Defaults to 0. */
 	y?: number;
 	/**
-	 * Depth offset in the Z axis.
-	 * @remarks Calculated automatically by the animation system; setting this
-	 * manually has no effect at runtime.
-	 */
-	z?: number;
-	/**
 	 * Custom element tag name for the card body.
 	 * `'about-me'` renders the `<about-me>` biography component.
 	 * `'tech-skills'` renders the `<tech-skills>` technology stack grid.

@@ -35,6 +35,7 @@ function initWorld(world: HTMLElement): void {
 	}
 
 	let zIndex = -200;
+	const vpScale = Math.min(1, window.innerWidth / 500);
 
 	Object.entries(LABELS).forEach(([key, { text, description }]) => {
 		const wrapper = document.createElement("div");
@@ -69,7 +70,7 @@ function initWorld(world: HTMLElement): void {
 			cardWrapper.className = "section__item";
 			cardWrapper.dataset.animElement = "";
 			cardWrapper.dataset.type = "card";
-			cardWrapper.dataset.x = String(card.x ?? 0);
+			cardWrapper.dataset.x = String((card.x ?? 0) * vpScale);
 			cardWrapper.dataset.y = String(card.y ?? 0);
 			cardWrapper.dataset.z = String(zIndex);
 			cardWrapper.dataset.rotation = String(card.rotation ?? 0);
