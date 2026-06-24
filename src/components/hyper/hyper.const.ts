@@ -1,4 +1,4 @@
-// import accordionHtml from './accordian.html' with { type: 'text' };
+import careerTimelineHtml from './career-timeline.html' with { type: 'text' };
 import type {
   Cards,
   Label,
@@ -64,15 +64,18 @@ const LABELS: Label = {
   projects: {
     text: 'Incomplete Projects',
   },
+  timeline: {
+    text: 'Life in a fast lane',
+  },
   job_stats: {
     text: 'Skill Issue',
   },
   spotify: {
     text: "I'm feeling lucky.mp3",
   },
-  testimonials: {
-    text: 'Victim Statements',
-  },
+  // testimonials: {
+  //   text: 'Victim Statements',
+  // },
   contact: {
     text: 'Wanna be the next victim?',
     description: 'Seriously, Employ me!',
@@ -80,6 +83,10 @@ const LABELS: Label = {
   footer: {
     text: 'You actually scrolled this far?',
     description: 'Congrats, you hit rock bottom',
+  },
+  truman_show: {
+    text: 'In case I dont see ya...',
+    description: 'Good afternoon, Good evening and Good night',
   },
 };
 
@@ -210,16 +217,28 @@ const CARDS: Cards = {
       size: 'l',
     },
   ],
-  testimonials: [
+  // testimonials: [
+  //   {
+  //     id: 'PROJ.TESTIMONIALS',
+  //     title: 'Testimonials',
+  //     tags: ['Python', 'ML'],
+  //     year: '2024',
+  //     x: 0,
+  //     rotation: -2,
+  //     content:
+  //       '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>',
+  //     size: 'l',
+  //   },
+  // ],
+  timeline: [
     {
-      id: 'PROJ.TESTIMONIALS',
-      title: 'Testimonials',
-      tags: ['Python', 'ML'],
-      year: '2024',
+      id: 'PROJ.TIMELINE',
+      title: 'Timeline',
+      tags: ['Zoho', 'MISDI', 'Pixel Toys', 'ECE'],
+      year: '** in that order **',
       x: 0,
       rotation: -2,
-      content:
-        '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl. Nullam euismod, nisl eget ultricies ultrices, nunc nisi aliquet nisl, eu tincidunt nisi nisl eu nisl.</p>',
+      content: `${careerTimelineHtml}`,
       size: 'l',
     },
   ],

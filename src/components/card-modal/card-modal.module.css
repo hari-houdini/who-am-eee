@@ -89,7 +89,7 @@
 	top: clamp(1rem, 2.5vw, 2rem);
 	right: clamp(1.5rem, 6.5vw, 6rem);
 	background: none;
-	border: 1px solid var(--border);
+	border: 2px solid var(--text);
 	color: var(--text);
 	font-size: 1rem;
 	width: 2rem;
@@ -99,14 +99,17 @@
 	justify-content: center;
 	cursor: pointer;
 	line-height: 1;
+  box-shadow:
+    0.3em 0.3em 0 0 var(--color),
+    inset 0.3em 0.3em 0 0 var(--color);
 	transition:
-		border-color 0.2s,
-		color 0.2s;
+    box-shadow 0.5s;
 }
 
 .card-modal__close:hover {
-	border-color: var(--accent);
-	color: var(--accent);
+  box-shadow:
+      0 0 0 0 var(--accent),
+      inset 6em 3.5em 0 0 var(--accent);
 }
 
 .card-modal__close:focus-visible {
