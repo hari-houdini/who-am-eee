@@ -29,7 +29,8 @@ type Card = {
 		| "management-skills"
 		| "forbidden-space"
 		| "social-space"
-		| "photo-gallery";
+		| "photo-gallery"
+		| "career-timeline";
 	/** HTML string for the card body content, parsed via DOMParser. */
 	content: string;
 	/**

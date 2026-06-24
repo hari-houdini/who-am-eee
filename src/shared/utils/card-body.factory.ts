@@ -32,6 +32,9 @@ function createCardBodyElement(
 	if (bodyTag === "photo-gallery") {
 		return document.createElement("photo-gallery");
 	}
+	if (bodyTag === "career-timeline") {
+		return document.createElement("career-timeline");
+	}
 	if (content) {
 		const div = document.createElement("div");
 		const parser = new DOMParser();

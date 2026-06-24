@@ -99,17 +99,16 @@
 	justify-content: center;
 	cursor: pointer;
 	line-height: 1;
-  box-shadow:
-    0.3em 0.3em 0 0 var(--color),
-    inset 0.3em 0.3em 0 0 var(--color);
-	transition:
-    box-shadow 0.5s;
+	box-shadow:
+		0.3em 0.3em 0 0 var(--color),
+		inset 0.3em 0.3em 0 0 var(--color);
+	transition: box-shadow 0.5s;
 }
 
 .card-modal__close:hover {
-  box-shadow:
-      0 0 0 0 var(--accent),
-      inset 6em 3.5em 0 0 var(--accent);
+	box-shadow:
+		0 0 0 0 var(--accent),
+		inset 6em 3.5em 0 0 var(--accent);
 }
 
 .card-modal__close:focus-visible {
