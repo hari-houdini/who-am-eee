@@ -1,14 +1,9 @@
 :host {
 	display: block;
-	height: 100%;
 	color: #fff;
 	font-family: var(--font-display);
 	font-size: clamp(0.75rem, 1.8vw, 0.85rem);
 	line-height: 1.6;
-}
-
-.career-timeline {
-	height: 100%;
 }
 
 .career-timeline__list {
@@ -17,14 +12,14 @@
 	padding: 0;
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	height: min(65vh, 560px);
 	gap: 1px;
 }
 
 /* ── Collapsed state ── */
 
 .career-timeline__item {
-	flex: 1 0 0;
+	flex: 1 1 0;
 	min-height: 80px;
 	overflow: hidden;
 	display: flex;
@@ -101,11 +96,11 @@
 
 /* ── Expanded state: hover or keyboard focus ── */
 
-.career-timeline__item:hover,
-.career-timeline__item:focus {
-	flex: 7 0 0;
-	filter: none !important;
-	opacity: 1 !important;
+.career-timeline__list:hover .career-timeline__item:hover,
+.career-timeline__list .career-timeline__item:focus {
+	flex: 7 1 0;
+	filter: none;
+	opacity: 1;
 	outline: none;
 }
 
@@ -149,8 +144,10 @@
 	transition: opacity 0.3s 0.25s ease;
 }
 
-.career-timeline__item:hover .career-timeline__content,
-.career-timeline__item:focus .career-timeline__content {
+.career-timeline__list:hover
+	.career-timeline__item:hover
+	.career-timeline__content,
+.career-timeline__list .career-timeline__item:focus .career-timeline__content {
 	opacity: 1;
 }
 
@@ -180,7 +177,7 @@ em {
 
 @media (prefers-reduced-motion: reduce) {
 	.career-timeline__item {
-		flex: 1 0 auto;
+		flex: 1 1 auto;
 		opacity: 1;
 		filter: none;
 		transition: none;

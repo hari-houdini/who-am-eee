@@ -1,13 +1,11 @@
-import cssText from "./career-timeline.module.css" with { type: "text" };
-import templateHtml from "./career-timeline.template.html" with {
-	type: "text",
-};
+import cssText from './career-timeline.module.css' with { type: 'text' };
+import templateHtml from './career-timeline.template.html' with { type: 'text' };
 
 /** Parsed CSS stylesheet shared across all `<career-timeline>` instances. */
 const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
+  const s = new CSSStyleSheet();
+  s.replaceSync(cssText.toString());
+  return s;
 })();
 
 /**
@@ -18,7 +16,8 @@ const sheet: CSSStyleSheet = (() => {
  * period) in its collapsed state (10% of container height). On `:hover` or
  * keyboard `:focus`, the active panel expands to 70% of the container height
  * and the detail content fades in. The remaining three panels each shrink to
- * 10%. All interaction is pure CSS — no JavaScript animation logic.
+ * 10%. Flex expansion is driven entirely by CSS; JS only toggles `aria-hidden`
+ * on the content region to keep it accessible when visually expanded.
  *
  * Under `prefers-reduced-motion: reduce`, all panels are fully visible and
  * no transitions fire.
@@ -26,43 +25,77 @@ const sheet: CSSStyleSheet = (() => {
  * @customElement career-timeline
  */
 class CareerTimeline extends HTMLElement {
-	constructor() {
-		super();
-		const shadow = this.attachShadow({ mode: "open" });
+  /** AbortController that cancels all item event listeners on disconnect. */
+  #ac: AbortController | undefined = undefined;
 
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(
-			templateHtml as unknown as string,
-			"text/html",
-		);
-		Array.from(doc.body.childNodes).forEach((n) => {
-			shadow.appendChild(n.cloneNode(true));
-		});
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: 'open' });
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
-	}
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(
+      templateHtml as unknown as string,
+      'text/html',
+    );
+    Array.from(doc.body.childNodes).forEach((n) => {
+      shadow.appendChild(n.cloneNode(true));
+    });
 
-	/** No-op: accordion interaction is handled entirely by CSS. */
-	connectedCallback(): void {}
+    if (shadow.adoptedStyleSheets !== undefined) {
+      shadow.adoptedStyleSheets = [sheet];
+    } else {
+      const style = document.createElement('style');
+      style.textContent = cssText.toString();
+      shadow.appendChild(style);
+    }
+  }
 
-	/** No-op: no resources to release. */
-	disconnectedCallback(): void {}
+  /** Attaches hover/focus listeners that toggle `aria-hidden` on each panel's content region. */
+  connectedCallback(): void {
+    this.#ac = new AbortController();
+    const { signal } = this.#ac;
 
-	/** No-op: component ignores document adoption. */
-	adoptedCallback(): void {}
+    const items = Array.from(
+      this.shadowRoot?.querySelectorAll<HTMLElement>(
+        '.career-timeline__item',
+      ) ?? [],
+    );
 
-	/** No-op: no observed attributes. */
-	attributeChangedCallback(
-		_name: string,
-		_oldValue: string | null,
-		_newValue: string | null,
-	): void {}
+    items.forEach((item) => {
+      const content = item.querySelector<HTMLElement>(
+        '.career-timeline__content',
+      );
+      if (!content) return;
+
+      const reveal = (): void => {
+        content.removeAttribute('aria-hidden');
+      };
+      const hide = (): void => {
+        content.setAttribute('aria-hidden', 'true');
+      };
+
+      item.addEventListener('mouseenter', reveal, { signal });
+      item.addEventListener('mouseleave', hide, { signal });
+      item.addEventListener('focus', reveal, { signal });
+      item.addEventListener('blur', hide, { signal });
+    });
+  }
+
+  /** Aborts all item event listeners registered in {@link connectedCallback}. */
+  disconnectedCallback(): void {
+    this.#ac?.abort();
+    this.#ac = undefined;
+  }
+
+  /** No-op: component ignores document adoption. */
+  adoptedCallback(): void {}
+
+  /** No-op: no observed attributes. */
+  attributeChangedCallback(
+    _name: string,
+    _oldValue: string | null,
+    _newValue: string | null,
+  ): void {}
 }
 
-customElements.define("career-timeline", CareerTimeline);
+customElements.define('career-timeline', CareerTimeline);
