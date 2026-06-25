@@ -1,6 +1,5 @@
 import Lenis from "lenis";
 import { createCardElement } from "../card/card.factory";
-import { ParticleNetwork } from "./constellation.animation";
 import {
 	CARDS,
 	INITIAL_SPACE_STATE,
@@ -10,30 +9,15 @@ import {
 
 /**
  * Populates the `#world` element with all scene items:
- * randomly distributed star particles, section text labels, and portfolio cards.
+ * section text labels and portfolio cards.
  *
  * Items are assigned `data-*` attributes consumed each frame by {@link rafLoop}.
- * Stars are distributed randomly across the full scene volume; labels and cards
- * are placed at evenly-spaced Z intervals defined by {@link SpaceConfig.zGap}.
+ * Labels and cards are placed at evenly-spaced Z intervals defined by
+ * {@link SpaceConfig.zGap}.
  *
  * @param world - The container element to populate (the `#world` div inside Shadow DOM).
  */
 function initWorld(world: HTMLElement): void {
-	for (let i = 0; i < SPACE_CONFIG.starCount; i++) {
-		const wrapper = document.createElement("div");
-		wrapper.className = "section__item";
-		wrapper.dataset.animElement = "";
-		wrapper.dataset.type = "star";
-		wrapper.dataset.x = String((Math.random() - 0.5) * 4000);
-		wrapper.dataset.y = String((Math.random() - 0.5) * 4000);
-		wrapper.dataset.z = String(-Math.random() * SPACE_CONFIG.loopSize);
-		wrapper.dataset.rotation = "0";
-		const dot = document.createElement("div");
-		dot.className = "star";
-		wrapper.appendChild(dot);
-		world.appendChild(wrapper);
-	}
-
 	let zIndex = -200;
 	const vpScale = Math.min(1, window.innerWidth / 500);
 
@@ -122,12 +106,6 @@ function loadHyperSpaceAnimation(context: HTMLElement): void {
 		state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
 	});
 
-	// --- Initialization ---
-	window.addEventListener("DOMContentLoaded", () => {
-		// 4. Simply pass the canvas DOM ID to instantiate
-		new ParticleNetwork("constellation", context.shadowRoot);
-	});
-
 	rafLoop(lenis, state, context.shadowRoot);
 
 	window.addEventListener("card:modal-opened", () => {
@@ -146,10 +124,13 @@ function loadHyperSpaceAnimation(context: HTMLElement): void {
  * 2. Smooths `state.velocity` toward `state.targetSpeed` via lerp.
  * 3. Applies camera tilt from mouse position and scroll speed (skipped under
  *    `prefers-reduced-motion: reduce`).
- * 4. Adjusts perspective (FOV warp) based on speed (also skipped under reduce).
+ * 4. Adjusts perspective (FOV warp) based on speed — cached to avoid writing
+ *    the style property every frame when the value has not meaningfully changed.
  * 5. Positions every scene item along the Z axis with depth-looping and opacity fade.
  *
  * All visual mutations use only `transform` and `opacity` (compositor path, 60 fps).
+ * Static per-item string fragments (`txPrefix`, `rzSuffix`) are pre-computed at
+ * setup so the inner loop only constructs strings for dynamic values (vizZ, float).
  *
  * @param lenis - The Lenis smooth-scroll instance owning the RAF clock.
  * @param state - Mutable scene state mutated by scroll and mouse listeners.
@@ -174,14 +155,27 @@ function rafLoop(
 		root.querySelectorAll("[data-anim-element]"),
 	);
 
-	const items = animElements.map((el) => ({
-		el,
-		type: el.dataset.type,
-		x: Number(el.dataset.x ?? "0"),
-		y: Number(el.dataset.y ?? "0"),
-		baseZ: Number(el.dataset.z ?? "0"),
-		rotation: Number(el.dataset.rotation ?? "0"),
-	}));
+	const items = animElements.map((el) => {
+		const x = Number(el.dataset.x ?? "0");
+		const y = Number(el.dataset.y ?? "0");
+		const baseZ = Number(el.dataset.z ?? "0");
+		const rotation = Number(el.dataset.rotation ?? "0");
+		return {
+			el,
+			type: el.dataset.type,
+			x,
+			y,
+			baseZ,
+			rotation,
+			/** Pre-computed `translate3d` prefix — only vizZ needs to be appended each frame. */
+			txPrefix: `translate3d(${x}px, ${y}px, `,
+			/** Pre-computed `rotateZ` suffix — empty string when rotation is 0. */
+			rzSuffix: rotation !== 0 ? ` rotateZ(${rotation}deg)` : "",
+		};
+	});
+
+	/** Last perspective (FOV) value written; avoids a DOM style write every frame when velocity is stable. */
+	let lastFov = -1;
 
 	/** Inner RAF callback — scheduled recursively via `requestAnimationFrame`. */
 	function raf(time: number): void {
@@ -197,7 +191,10 @@ function rafLoop(
 
 			const baseFov = 1000;
 			const fov = baseFov - Math.min(Math.abs(state.velocity) * 10, 600);
-			viewportEl.style.perspective = `${fov}px`;
+			if (Math.abs(fov - lastFov) > 0.5) {
+				viewportEl.style.perspective = `${fov}px`;
+				lastFov = fov;
+			}
 		}
 
 		const cameraZ = state.scroll * SPACE_CONFIG.camSpeed;
@@ -212,7 +209,7 @@ function rafLoop(
 			if (vizZ < -3000) alpha = 0;
 			else if (vizZ < -2000) alpha = (vizZ + 3000) / 1000;
 
-			if (vizZ > 100 && item.type !== "star") {
+			if (vizZ > 100) {
 				alpha = 1 - (vizZ - 100) / 400;
 			}
 
@@ -225,21 +222,11 @@ function rafLoop(
 			item.el.style.opacity = String(alpha);
 			item.el.style.display = "flex";
 
-			let trans = `translate3d(${item.x}px, ${item.y}px, ${vizZ}px)`;
+			let trans = `${item.txPrefix}${vizZ}px)`;
 
 			switch (item.type) {
-				case "star": {
-					if (!reduceMotion.matches) {
-						const stretch = Math.max(
-							1,
-							Math.min(1 + Math.abs(state.velocity) * 0.1, 10),
-						);
-						trans += ` scale3d(1, 1, ${stretch})`;
-					}
-					break;
-				}
 				case "text": {
-					trans += ` rotateZ(${item.rotation}deg)`;
+					trans += item.rzSuffix;
 
 					if (!reduceMotion.matches) {
 						const transX = (-state.mouseX / (state.mouseX + 50)) * 100;
@@ -265,9 +252,9 @@ function rafLoop(
 					if (!reduceMotion.matches) {
 						const t = time * 0.001;
 						const float = Math.sin(t + item.x) * 10;
-						trans += ` rotateZ(${item.rotation}deg) rotateY(${float}deg)`;
+						trans += `${item.rzSuffix} rotateY(${float}deg)`;
 					} else {
-						trans += ` rotateZ(${item.rotation}deg)`;
+						trans += item.rzSuffix;
 					}
 					break;
 				}

@@ -8,6 +8,7 @@
 	justify-content: space-between;
 	font-family: var(--font-code);
 	font-size: clamp(0.6rem, 1.5vw, 0.7rem);
+  gap: 1rem;
 }
 
 .card-footer__tags {

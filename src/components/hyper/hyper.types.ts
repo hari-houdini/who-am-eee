@@ -45,8 +45,6 @@ type SpaceState = {
 type SpaceConfig = {
 	/** Total number of positioned items (text + cards). Computed from LABELS and CARDS. */
 	itemCount: number;
-	/** Number of star particles to generate. */
-	starCount: number;
 	/** Z-axis gap in pixels between consecutive scene items. */
 	zGap: number;
 	/** Total Z depth of the scene before it loops. Computed as `itemCount * zGap`. */
