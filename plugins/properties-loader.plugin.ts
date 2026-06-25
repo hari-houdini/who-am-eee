@@ -1,4 +1,4 @@
-import type { BunPlugin } from 'bun';
+import type { BunPlugin } from "bun";
 
 /**
  * Bun build plugin that transforms `.properties` files into ES modules.
@@ -12,33 +12,33 @@ import type { BunPlugin } from 'bun';
  * conventions. The plugin is registered in `build.config.ts`.
  */
 export const propertiesLoaderPlugin: BunPlugin = {
-  name: 'properties-loader',
-  target: 'bun',
-  setup(build) {
-    build.onLoad({ filter: /\.properties$/ }, async (args) => {
-      const text = await Bun.file(args.path).text();
-      const result: Record<string, string> = {};
+	name: "properties-loader",
+	target: "bun",
+	setup(build) {
+		build.onLoad({ filter: /\.properties$/ }, async (args) => {
+			const text = await Bun.file(args.path).text();
+			const result: Record<string, string> = {};
 
-      for (const line of text.split(/\r?\n/)) {
-        const trimmed = line.trim();
+			for (const line of text.split(/\r?\n/)) {
+				const trimmed = line.trim();
 
-        if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('!')) {
-          continue;
-        }
+				if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("!")) {
+					continue;
+				}
 
-        const delimiterIdx = trimmed.indexOf('=');
+				const delimiterIdx = trimmed.indexOf("=");
 
-        if (delimiterIdx !== -1) {
-          const key = trimmed.substring(0, delimiterIdx).trim();
-          const value = trimmed.substring(delimiterIdx + 1).trim();
-          result[key] = value;
-        }
-      }
+				if (delimiterIdx !== -1) {
+					const key = trimmed.substring(0, delimiterIdx).trim();
+					const value = trimmed.substring(delimiterIdx + 1).trim();
+					result[key] = value;
+				}
+			}
 
-      return {
-        contents: `export default ${JSON.stringify(result)};`,
-        loader: 'js',
-      };
-    });
-  },
+			return {
+				contents: `export default ${JSON.stringify(result)};`,
+				loader: "js",
+			};
+		});
+	},
 };

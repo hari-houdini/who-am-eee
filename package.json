@@ -4,10 +4,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun run index.ts",
+    "start": "bun dist/src/main.js",
     "dev": "bun --hot run index.ts",
     "build": "bun run build.config.ts && cp -r ./public/. ./dist/",
-    "serve": "bun run build && bun run start"
+    "build:prod": "NODE_ENV=production bun run build.config.ts && cp -r ./public/. ./dist/",
+    "serve": "bun run build && bun run start",
+    "serve:prod": "bun run build:prod && bun run start"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.0",
