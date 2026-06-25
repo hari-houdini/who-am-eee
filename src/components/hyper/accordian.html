@@ -79,19 +79,3 @@
 		</section>
 	</li>
 </ul>
-
-<script type="module">
-const accordianItems = document.querySelectorAll(".accordian__item");
-
-accordianItems.forEach((item) => {
-	const header = item.querySelector(".accordian__header");
-	const content = item.querySelector(".accordian__content");
-
-	header.addEventListener("click", (e) => {
-		e.preventDefault();
-		const expanded = header.getAttribute("aria-expanded") === "true";
-		header.setAttribute("aria-expanded", !expanded);
-		content.hidden = !content.hidden;
-	});
-});
-</script>
