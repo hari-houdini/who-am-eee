@@ -114,6 +114,21 @@ class CardModal extends HTMLElement {
 		this.#insetEl.addEventListener("animationend", this.#handleAnimationEnd, {
 			signal,
 		});
+
+		// Lenis (syncTouch: true) intercepts all touch events at the document level.
+		// Stopping propagation here prevents Lenis from seeing touches that begin
+		// inside the modal, allowing native overflow-y scroll to work on mobile.
+		const stopTouch = (e: TouchEvent): void => {
+			e.stopPropagation();
+		};
+		this.#insetEl.addEventListener("touchstart", stopTouch, {
+			signal,
+			passive: true,
+		});
+		this.#insetEl.addEventListener("touchmove", stopTouch, {
+			signal,
+			passive: true,
+		});
 	}
 
 	/** Removes all event listeners via AbortController. */
