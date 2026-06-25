@@ -9,7 +9,7 @@
     "build": "bun run build.config.ts && cp -r ./public/. ./dist/",
     "build:prod": "NODE_ENV=production bun run build.config.ts && cp -r ./public/. ./dist/",
     "serve": "bun run build && bun run start",
-    "serve:prod": "bun run build:prod && bun run start"
+    "serve:prod": "bun run build:prod && bun server.prod.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.0",
