@@ -60,6 +60,7 @@
 	overscroll-behavior: contain;
 	touch-action: pan-y;
 	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -139,6 +140,7 @@
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;
+	scrollbar-width: none;
 	opacity: 0;
 	transform: translateY(0) scale(0.8);
 	transition:
@@ -187,6 +189,13 @@
 		transform: translateY(35px) scale(0.97);
 		visibility: hidden;
 	}
+}
+
+/* ── Hide scrollbars (all scrollable regions) ── */
+
+.card-modal__inset::-webkit-scrollbar,
+.card-modal__body::-webkit-scrollbar {
+	display: none;
 }
 
 /* ── Reduced motion fallbacks ── */

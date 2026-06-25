@@ -140,7 +140,12 @@
 	flex: 1 0 0;
 	min-height: 0;
 	overflow-y: auto;
+	scrollbar-width: none;
 	transition: opacity 0.3s 0.25s ease;
+}
+
+.career-timeline__content::-webkit-scrollbar {
+	display: none;
 }
 
 .career-timeline__list:hover
