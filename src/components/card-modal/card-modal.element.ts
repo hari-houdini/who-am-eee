@@ -1,4 +1,5 @@
 import type { CardOpenDetail } from "../../shared/types/card-modal.types";
+import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
 import { createCardBodyElement } from "../../shared/utils/card-body.factory";
 import cssText from "./card-modal.module.css" with { type: "text" };
 import templateHtml from "./card-modal.template.html" with { type: "text" };
@@ -38,7 +39,7 @@ function requireEl<T extends Element>(root: ShadowRoot, selector: string): T {
  * on Escape, close-button click, or backdrop click.
  *
  * Dispatches `card:modal-opened` and `card:modal-closed` on `window` so that
- * `hyper.animation.ts` can pause and resume the Lenis scroll instance.
+ * `hyper.animation.ts` can pause and resume the scroll animation.
  *
  * Accessibility: ARIA dialog pattern with focus trap and focus return.
  *
@@ -82,13 +83,7 @@ class CardModal extends HTMLElement {
 			shadow.appendChild(n.cloneNode(true));
 		});
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
+		adoptStyles(shadow, sheet, cssText.toString());
 
 		this.#overlayEl = requireEl<HTMLElement>(shadow, ".card-modal__overlay");
 		this.#frameEl = requireEl<HTMLElement>(shadow, ".card-modal__frame");
@@ -115,9 +110,8 @@ class CardModal extends HTMLElement {
 			signal,
 		});
 
-		// Lenis (syncTouch: true) intercepts all touch events at the document level.
-		// Stopping propagation here prevents Lenis from seeing touches that begin
-		// inside the modal, allowing native overflow-y scroll to work on mobile.
+		// Stops touch propagation so touches inside the modal don't scroll the
+		// page behind it, allowing native overflow-y scroll to work on mobile.
 		const stopTouch = (e: TouchEvent): void => {
 			e.stopPropagation();
 		};

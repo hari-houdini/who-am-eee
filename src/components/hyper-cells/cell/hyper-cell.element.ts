@@ -1,3 +1,4 @@
+import { adoptStyles } from "../../../shared/utils/adopt-styles.utils";
 import cssText from "./hyper-cell.module.css" with { type: "text" };
 import templateHtml from "./hyper-cell.template.html" with { type: "text" };
 
@@ -40,13 +41,7 @@ class HyperCell extends HTMLElement {
 			shadow.appendChild(n.cloneNode(true)),
 		);
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
+		adoptStyles(shadow, sheet, cssText.toString());
 	}
 
 	/** No-op: href is set via attribute before or at connect time. */

@@ -1,4 +1,4 @@
-import Lenis from "lenis";
+import { LerpScroll } from "../../shared/utils/lerp-scroll.utils";
 import { createCardElement } from "../card/card.factory";
 import {
 	CARDS,
@@ -6,6 +6,26 @@ import {
 	LABELS,
 	SPACE_CONFIG,
 } from "./hyper.const";
+
+/**
+ * Creates a paused Web Animations API animation that immediately holds the
+ * provided keyframe via `fill: 'forwards'`. Update the displayed value each
+ * frame with `(anim.effect as KeyframeEffect).setKeyframes([newKeyframe])`.
+ *
+ * WAA effects do not write style attributes, so this is safe under strict
+ * `style-src 'self'` CSP directives.
+ *
+ * @param el - Target element to animate.
+ * @param keyframe - Initial CSS keyframe applied immediately.
+ * @returns Paused {@link Animation} ready for per-frame keyframe updates.
+ */
+function makeStaticAnim(el: Element, keyframe: Keyframe): Animation {
+	const anim = el.animate([keyframe], { duration: 1, fill: "forwards" });
+	// Seek to the end so fill: 'forwards' applies the keyframe right away.
+	anim.currentTime = 1;
+	anim.pause();
+	return anim;
+}
 
 /**
  * Populates the `#world` element with all scene items:
@@ -70,30 +90,28 @@ function initWorld(world: HTMLElement): void {
 /**
  * Entry point called from the `<hyper-space>` element's `connectedCallback`.
  *
- * Initialises the scene DOM via {@link initWorld}, creates a Lenis smooth-scroll
+ * Initialises the scene DOM via {@link initWorld}, creates a {@link LerpScroll}
  * instance, registers scroll and mouse listeners that update shared state, then
  * delegates the per-frame rendering to {@link rafLoop}.
  *
  * @param context - The `<hyper-space>` custom element. Its Shadow DOM must
  *   already be attached and must contain a `#world` element.
+ * @returns Cleanup function to call from `disconnectedCallback`.
  */
-function loadHyperSpaceAnimation(context: HTMLElement): void {
-	if (!context.shadowRoot) return;
+function loadHyperSpaceAnimation(context: HTMLElement): () => void {
+	if (!context.shadowRoot) return () => {};
 
 	const state = { ...INITIAL_SPACE_STATE };
 
 	const world = context.shadowRoot.getElementById("world");
 
-	if (!world) return;
+	if (!world) return () => {};
 
 	initWorld(world);
 
-	const lenis = new Lenis({
-		lerp: 0.08,
-		syncTouch: true,
-	});
+	const lerp = new LerpScroll(0.08);
 
-	lenis.on(
+	lerp.on(
 		"scroll",
 		({ scroll, velocity }: { scroll: number; velocity: number }) => {
 			state.scroll = scroll;
@@ -106,45 +124,60 @@ function loadHyperSpaceAnimation(context: HTMLElement): void {
 		state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
 	});
 
-	rafLoop(lenis, state, context.shadowRoot);
+	const cancelRaf = rafLoop(lerp, state, context.shadowRoot);
 
-	window.addEventListener("card:modal-opened", () => {
-		lenis.stop();
-	});
-	window.addEventListener("card:modal-closed", () => {
-		lenis.start();
-	});
+	const onModalOpen = (): void => {
+		lerp.stop();
+		document.body.classList.add("body--scroll-locked");
+	};
+	const onModalClose = (): void => {
+		lerp.start();
+		document.body.classList.remove("body--scroll-locked");
+	};
+
+	window.addEventListener("card:modal-opened", onModalOpen);
+	window.addEventListener("card:modal-closed", onModalClose);
+
+	return (): void => {
+		lerp.destroy();
+		cancelRaf();
+		window.removeEventListener("card:modal-opened", onModalOpen);
+		window.removeEventListener("card:modal-closed", onModalClose);
+	};
 }
 
 /**
  * Runs the per-frame animation loop for the hyper-space scene.
  *
  * Each frame:
- * 1. Calls `lenis.raf(time)` for smooth-scroll integration.
+ * 1. Calls `lerp.raf(time)` (no-op kept for API symmetry).
  * 2. Smooths `state.velocity` toward `state.targetSpeed` via lerp.
  * 3. Applies camera tilt from mouse position and scroll speed (skipped under
- *    `prefers-reduced-motion: reduce`).
- * 4. Adjusts perspective (FOV warp) based on speed — cached to avoid writing
- *    the style property every frame when the value has not meaningfully changed.
- * 5. Positions every scene item along the Z axis with depth-looping and opacity fade.
+ *    `prefers-reduced-motion: reduce`) via Web Animations API.
+ * 4. Adjusts perspective (FOV warp) based on speed via Web Animations API —
+ *    cached to avoid a keyframe update every frame when velocity is stable.
+ * 5. Positions every scene item along the Z axis with depth-looping and opacity
+ *    fade via Web Animations API.
  *
- * All visual mutations use only `transform` and `opacity` (compositor path, 60 fps).
- * Static per-item string fragments (`txPrefix`, `rzSuffix`) are pre-computed at
- * setup so the inner loop only constructs strings for dynamic values (vizZ, float).
+ * All visual mutations use WAA `KeyframeEffect.setKeyframes()` instead of
+ * `element.style.*` writes. WAA effects operate on the Animation model and do
+ * NOT create or modify style attributes, making this loop safe under strict
+ * `style-src 'self'` CSP with no `unsafe-*` keywords required.
  *
- * @param lenis - The Lenis smooth-scroll instance owning the RAF clock.
+ * @param lerp - The {@link LerpScroll} instance providing the scroll clock.
  * @param state - Mutable scene state mutated by scroll and mouse listeners.
  * @param root - Shadow root of the `<hyper-space>` element.
+ * @returns Cleanup function that cancels the RAF loop.
  */
 function rafLoop(
-	lenis: Lenis,
+	lerp: LerpScroll,
 	state: typeof INITIAL_SPACE_STATE,
 	root: ShadowRoot,
-): void {
+): () => void {
 	const world = root.getElementById("world");
 	const viewport = root.getElementById("viewport");
 
-	if (!world || !viewport) return;
+	if (!world || !viewport) return () => {};
 
 	const worldEl: HTMLElement = world;
 	const viewportEl: HTMLElement = viewport;
@@ -155,11 +188,60 @@ function rafLoop(
 		root.querySelectorAll("[data-anim-element]"),
 	);
 
-	const items = animElements.map((el) => {
+	// WAA instances for the camera-level transforms.
+	const worldAnim = makeStaticAnim(worldEl, { transform: "none" });
+	const viewportAnim = makeStaticAnim(viewportEl, { perspective: "1000px" });
+
+	/** Per-item animation data. */
+	type ItemData = {
+		/** Scene element. */
+		el: HTMLElement;
+		/** Dataset type tag ('text' | 'card'). */
+		type: string | undefined;
+		/** X offset in pixels. */
+		x: number;
+		/** Y offset in pixels. */
+		y: number;
+		/** Base Z depth in the scene. */
+		baseZ: number;
+		/** Z rotation in degrees. */
+		rotation: number;
+		/** Pre-computed `translate3d` prefix — only vizZ needs appending each frame. */
+		txPrefix: string;
+		/** Pre-computed `rotateZ` suffix — empty string when rotation is 0. */
+		rzSuffix: string;
+		/** WAA animation controlling transform and opacity for this element. */
+		anim: Animation;
+		/** Inner title element for text items; `null` for cards. */
+		titleEl: HTMLElement | null;
+		/** WAA animation controlling backgroundPosition and textShadow on the title. */
+		titleAnim: Animation | null;
+	};
+
+	const items: ItemData[] = animElements.map((el) => {
 		const x = Number(el.dataset.x ?? "0");
 		const y = Number(el.dataset.y ?? "0");
 		const baseZ = Number(el.dataset.z ?? "0");
 		const rotation = Number(el.dataset.rotation ?? "0");
+
+		const anim = makeStaticAnim(el, {
+			transform: "translate3d(0,0,0)",
+			opacity: "1",
+		});
+
+		const titleEl =
+			el.dataset.type === "text"
+				? el.querySelector<HTMLElement>(".section__item--title")
+				: null;
+
+		const titleAnim =
+			titleEl !== null
+				? makeStaticAnim(titleEl, {
+						backgroundPosition: "40% 50%",
+						textShadow: "none",
+					})
+				: null;
+
 		return {
 			el,
 			type: el.dataset.type,
@@ -167,32 +249,41 @@ function rafLoop(
 			y,
 			baseZ,
 			rotation,
-			/** Pre-computed `translate3d` prefix — only vizZ needs to be appended each frame. */
 			txPrefix: `translate3d(${x}px, ${y}px, `,
-			/** Pre-computed `rotateZ` suffix — empty string when rotation is 0. */
 			rzSuffix: rotation !== 0 ? ` rotateZ(${rotation}deg)` : "",
+			anim,
+			titleEl,
+			titleAnim,
 		};
 	});
 
-	/** Last perspective (FOV) value written; avoids a DOM style write every frame when velocity is stable. */
+	/** Last perspective (FOV) value written; avoids a keyframe update every frame when velocity is stable. */
 	let lastFov = -1;
+
+	/** Most-recently scheduled RAF handle; updated each frame so cleanup can cancel. */
+	let currentRafId = 0;
 
 	/** Inner RAF callback — scheduled recursively via `requestAnimationFrame`. */
 	function raf(time: number): void {
-		lenis.raf(time);
-		window.requestAnimationFrame(raf);
+		lerp.raf(time);
+		currentRafId = window.requestAnimationFrame(raf);
 
 		state.velocity += (state.targetSpeed - state.velocity) * 0.1;
 
 		if (!reduceMotion.matches) {
 			const tiltX = state.mouseY * 5 - state.velocity * 0.5;
 			const tiltY = state.mouseX * 5;
-			worldEl.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+			// el.animate() always creates a KeyframeEffect — the cast is safe.
+			(worldAnim.effect as KeyframeEffect).setKeyframes([
+				{ transform: `rotateX(${tiltX}deg) rotateY(${tiltY}deg)` },
+			]);
 
 			const baseFov = 1000;
 			const fov = baseFov - Math.min(Math.abs(state.velocity) * 10, 600);
 			if (Math.abs(fov - lastFov) > 0.5) {
-				viewportEl.style.perspective = `${fov}px`;
+				(viewportAnim.effect as KeyframeEffect).setKeyframes([
+					{ perspective: `${fov}px` },
+				]);
 				lastFov = fov;
 			}
 		}
@@ -214,13 +305,11 @@ function rafLoop(
 			}
 
 			if (alpha <= 0) {
-				item.el.style.opacity = "0";
-				item.el.style.display = "none";
+				item.el.classList.add("section__item--hidden");
 				return;
 			}
 
-			item.el.style.opacity = String(alpha);
-			item.el.style.display = "flex";
+			item.el.classList.remove("section__item--hidden");
 
 			let trans = `${item.txPrefix}${vizZ}px)`;
 
@@ -228,23 +317,21 @@ function rafLoop(
 				case "text": {
 					trans += item.rzSuffix;
 
-					if (!reduceMotion.matches) {
+					if (!reduceMotion.matches && item.titleEl && item.titleAnim) {
 						const transX = (-state.mouseX / (state.mouseX + 50)) * 100;
 						const transY = (-state.mouseY / (state.mouseY + 50)) * 100;
 
-						const titleEl = item.el.querySelector<HTMLElement>(
-							".section__item--title",
-						);
-						if (titleEl) {
-							titleEl.style.backgroundPosition = `${transX}% ${transY}%`;
-						}
+						const shadow =
+							Math.abs(state.velocity) > 1
+								? `${state.velocity * 2}px 0 red, ${-state.velocity * 2}px 0 cyan`
+								: "none";
 
-						if (Math.abs(state.velocity) > 1) {
-							const offset = state.velocity * 2;
-							item.el.style.textShadow = `${offset}px 0 red, ${-offset}px 0 cyan`;
-						} else {
-							item.el.style.textShadow = "none";
-						}
+						(item.titleAnim.effect as KeyframeEffect).setKeyframes([
+							{
+								backgroundPosition: `${transX}% ${transY}%`,
+								textShadow: shadow,
+							},
+						]);
 					}
 					break;
 				}
@@ -260,11 +347,19 @@ function rafLoop(
 				}
 			}
 
-			item.el.style.transform = trans;
+			(item.anim.effect as KeyframeEffect).setKeyframes([
+				{
+					transform: trans,
+					opacity: String(alpha),
+				},
+			]);
 		});
 	}
 
-	window.requestAnimationFrame(raf);
+	currentRafId = window.requestAnimationFrame(raf);
+	return (): void => {
+		cancelAnimationFrame(currentRafId);
+	};
 }
 
 export { loadHyperSpaceAnimation };

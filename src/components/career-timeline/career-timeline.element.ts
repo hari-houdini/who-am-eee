@@ -1,3 +1,4 @@
+import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
 import cssText from "./career-timeline.module.css" with { type: "text" };
 import templateHtml from "./career-timeline.template.html" with {
 	type: "text",
@@ -43,13 +44,7 @@ class CareerTimeline extends HTMLElement {
 			shadow.appendChild(n.cloneNode(true));
 		});
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
+		adoptStyles(shadow, sheet, cssText.toString());
 	}
 
 	/** Attaches hover/focus listeners that toggle `aria-hidden` on each panel's content region. */

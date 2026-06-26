@@ -70,6 +70,11 @@
 	-webkit-background-clip: text;
 }
 
+/** Hides items that are behind the camera or fully faded — toggled by rafLoop via classList. */
+.section__item--hidden {
+	display: none;
+}
+
 .section__item--tagline {
 	font-size: 1cqw;
 	letter-spacing: 2rem;

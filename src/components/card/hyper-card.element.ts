@@ -1,4 +1,5 @@
 import type { CardOpenDetail } from "../../shared/types/card-modal.types";
+import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
 import cssText from "./hyper-card.module.css" with { type: "text" };
 import templateHtml from "./hyper-card.template.html" with { type: "text" };
 
@@ -51,13 +52,7 @@ class HyperCard extends HTMLElement {
 			shadow.appendChild(n.cloneNode(true));
 		});
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
+		adoptStyles(shadow, sheet, cssText.toString());
 	}
 
 	/**

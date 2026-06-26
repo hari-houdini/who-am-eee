@@ -26,9 +26,9 @@ type Cards = Record<string, Card[]>;
  * throughout the session.
  */
 type SpaceState = {
-	/** Raw scroll position in pixels from Lenis. */
+	/** Smoothed scroll position in pixels from {@link LerpScroll}. */
 	scroll: number;
-	/** Target scroll speed set by the Lenis scroll event. */
+	/** Target scroll speed set by the scroll event callback. */
 	targetSpeed: number;
 	/** Smoothed velocity used for stretch and glitch effects. */
 	velocity: number;

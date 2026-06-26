@@ -112,3 +112,10 @@
     border-width: 0;
   }
 }
+
+@layer utilities {
+  /* Applied via classList by loadHyperSpaceAnimation while a card modal is open. */
+  .body--scroll-locked {
+    overflow: hidden;
+  }
+}

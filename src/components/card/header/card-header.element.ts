@@ -1,3 +1,4 @@
+import { adoptStyles } from "../../../shared/utils/adopt-styles.utils";
 import cssText from "./card-header.module.css" with { type: "text" };
 import templateHtml from "./card-header.template.html" with { type: "text" };
 
@@ -36,13 +37,7 @@ class CardHeader extends HTMLElement {
 			shadow.appendChild(n.cloneNode(true)),
 		);
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
+		adoptStyles(shadow, sheet, cssText.toString());
 	}
 
 	/** No-op: attribute-driven component, no DOM side-effects on connect. */

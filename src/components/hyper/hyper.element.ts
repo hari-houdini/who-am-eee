@@ -1,3 +1,4 @@
+import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
 import { loadHyperSpaceAnimation } from "./hyper.animation";
 import hyperSpaceStyles from "./hyper.module.css" with { type: "text" };
 import hyperSpaceTemplate from "./hyper.template.html" with { type: "text" };
@@ -15,6 +16,9 @@ import hyperSpaceTemplate from "./hyper.template.html" with { type: "text" };
  * than `innerHTML` to comply with the project's DOM-safety policy.
  */
 class HyperSpaceWindow extends HTMLElement {
+	/** Cleanup function returned by {@link loadHyperSpaceAnimation}. */
+	#cleanup: (() => void) | null = null;
+
 	constructor() {
 		super();
 
@@ -31,18 +35,19 @@ class HyperSpaceWindow extends HTMLElement {
 		const shadowRoot = this.attachShadow({ mode: "open" });
 		const stylesheet = new CSSStyleSheet();
 		stylesheet.replaceSync(hyperSpaceStyles.toString());
-		shadowRoot.adoptedStyleSheets = [stylesheet];
+		adoptStyles(shadowRoot, stylesheet, hyperSpaceStyles.toString());
 		shadowRoot.appendChild(template.content.cloneNode(true));
 	}
 
 	/** Starts the hyper-space animation when the element is connected to the DOM. */
 	connectedCallback(): void {
-		loadHyperSpaceAnimation(this);
+		this.#cleanup = loadHyperSpaceAnimation(this);
 	}
 
-	/** Cleans up when the element is removed. RAF cancellation is a future enhancement. */
+	/** Cancels the RAF loop and scroll listener when the element is removed. */
 	disconnectedCallback(): void {
-		// No-op: RAF cleanup tracked separately.
+		this.#cleanup?.();
+		this.#cleanup = null;
 	}
 
 	/** No action required when the element is adopted into a new document. */

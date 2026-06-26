@@ -1,3 +1,4 @@
+import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
 import cssText from "./hyper-cells.module.css" with { type: "text" };
 import templateHtml from "./hyper-cells.template.html" with { type: "text" };
 
@@ -31,13 +32,7 @@ class HyperCells extends HTMLElement {
 			shadow.appendChild(n.cloneNode(true)),
 		);
 
-		if (shadow.adoptedStyleSheets !== undefined) {
-			shadow.adoptedStyleSheets = [sheet];
-		} else {
-			const style = document.createElement("style");
-			style.textContent = cssText.toString();
-			shadow.appendChild(style);
-		}
+		adoptStyles(shadow, sheet, cssText.toString());
 	}
 
 	/** No-op: purely structural container with no dynamic behaviour. */

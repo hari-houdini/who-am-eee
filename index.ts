@@ -14,7 +14,7 @@ const SECURITY_HEADERS: Record<string, string> = {
 		"default-src 'self'; " +
 		"script-src 'self'; " +
 		"style-src 'self'; " +
-		"font-src 'self'; " +
+		"font-src 'self' data:; " +
 		"img-src 'self' data: blob:; " +
 		"connect-src 'self'; " +
 		"media-src 'none'; " +
