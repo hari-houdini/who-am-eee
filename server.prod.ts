@@ -208,11 +208,12 @@ const server = Bun.serve({
 		}
 
 		if (isHtml) {
-			// Read HTML as text to inject the per-request nonce before serving.
-			// Compressed sidecars are intentionally skipped for HTML (the nonce
-			// injection requires plain text, and index.html is already tiny).
+			// Build the uncompressed base path directly — the nonce injection
+			// requires plain text, so we never serve a compressed sidecar for HTML.
+			const basePath =
+				url.pathname === "/" ? `${DIST}/index.html` : `${DIST}${url.pathname}`;
 			const nonce = generateNonce();
-			const htmlText = await file.text();
+			const htmlText = await Bun.file(basePath).text();
 			const injected = htmlText.replace(
 				"</head>",
 				`<meta name="csp-nonce" content="${nonce}"></head>`,
