@@ -28,7 +28,11 @@ function createCardElement(card: Card): HTMLElement {
 		cardEl.setAttribute("modal", "");
 	}
 
-	const bodyContent = createCardBodyElement(card.bodyTag, card.content);
+	const bodyContent = createCardBodyElement(
+		card.bodyTag,
+		card.content,
+		card.id,
+	);
 	if (bodyContent) {
 		bodyContent.setAttribute("slot", "body-content");
 		cardEl.appendChild(bodyContent);
