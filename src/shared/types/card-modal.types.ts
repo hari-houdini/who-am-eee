@@ -10,6 +10,12 @@ type CardOpenDetail = {
 	 * Empty string when the card has no custom element body.
 	 */
 	bodyTag: string;
+	/**
+	 * Value of the `card-id` attribute on `<hyper-card>` (e.g. `'PROJ.REPOS.001'`).
+	 * Forwarded to {@link createCardBodyElement} so self-contained components like
+	 * `<project-tabs>` can look up their own data without requiring content injection.
+	 */
+	cardId: string;
 };
 
 export type { CardOpenDetail };

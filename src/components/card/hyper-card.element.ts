@@ -145,6 +145,7 @@ class HyperCard extends HTMLElement {
 		const detail: CardOpenDetail = {
 			heading: this.getAttribute("heading") ?? "",
 			bodyTag: this.getAttribute("body-tag") ?? "",
+			cardId: this.getAttribute("card-id") ?? "",
 		};
 		window.dispatchEvent(
 			new CustomEvent<CardOpenDetail>("card:open", { detail }),

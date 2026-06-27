@@ -1,9 +1,12 @@
-import type { Project } from "./project.types";
+import type { Project } from "../types/project.types";
 
 /**
- * Projects that I've worked on, with their current progress and learnings.
- * Each project has a unique identifier (e.g. `'PROJ.REPOS.001'`) and a
- * corresponding {@link Project} object.
+ * Static project metadata keyed by card ID (e.g. `'PROJ.REPOS.001'`).
+ * Consumed by `<project-tabs>` to populate tab content, progress ring, and GitHub link.
+ *
+ * @remarks
+ * Each key must match the `id` of the corresponding `Card` entry in `hyper.const.ts`.
+ * Progress values are 0–100 (percentage complete).
  */
 const PROJECT_INFO: Record<string, Project> = {
 	"PROJ.REPOS.001": {

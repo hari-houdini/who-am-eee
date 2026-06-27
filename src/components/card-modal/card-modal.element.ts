@@ -145,7 +145,8 @@ class CardModal extends HTMLElement {
 	 * Sets modal content, triggers the appear animation, and moves focus inside.
 	 */
 	readonly #handleOpen = (e: Event): void => {
-		const { heading, bodyTag } = (e as CustomEvent<CardOpenDetail>).detail;
+		const { heading, bodyTag, cardId } = (e as CustomEvent<CardOpenDetail>)
+			.detail;
 
 		this.#previousFocus = document.activeElement as HTMLElement;
 
@@ -154,7 +155,7 @@ class CardModal extends HTMLElement {
 		while (this.#bodyEl.firstChild) {
 			this.#bodyEl.removeChild(this.#bodyEl.firstChild);
 		}
-		const bodyContent = createCardBodyElement(bodyTag || undefined, "");
+		const bodyContent = createCardBodyElement(bodyTag || undefined, "", cardId);
 		if (bodyContent) {
 			this.#bodyEl.appendChild(bodyContent);
 		}

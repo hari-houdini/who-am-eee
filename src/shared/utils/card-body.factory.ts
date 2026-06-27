@@ -8,11 +8,14 @@
  * @param bodyTag - Custom element tag name (e.g. `'about-me'`, `'tech-skills'`).
  *   Pass `undefined` or an empty string to fall back to `content`.
  * @param content - Raw HTML string parsed via `DOMParser` when `bodyTag` is absent.
+ * @param cardId - The originating card's `id` attribute (e.g. `'PROJ.REPOS.001'`).
+ *   Forwarded to self-contained components like `<project-tabs>` via `dataset.projectId`.
  * @returns The constructed `HTMLElement`, or `null` when both inputs are empty.
  */
 function createCardBodyElement(
 	bodyTag: string | undefined,
 	content: string,
+	cardId = "",
 ): HTMLElement | null {
 	if (bodyTag === "about-me") {
 		return document.createElement("about-me");
@@ -37,13 +40,7 @@ function createCardBodyElement(
 	}
 	if (bodyTag === "project-tabs") {
 		const el = document.createElement("project-tabs");
-		if (content) {
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(content, "text/html");
-			Array.from(doc.body.childNodes).forEach((n) => {
-				el.appendChild(n.cloneNode(true));
-			});
-		}
+		if (cardId) el.dataset.projectId = cardId;
 		return el;
 	}
 	if (content) {
