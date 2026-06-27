@@ -1,0 +1,82 @@
+:host {
+	display: block;
+	font-family: var(--font-display);
+	color: var(--text);
+}
+
+.project-tabs__list {
+	position: relative;
+	display: flex;
+	border-bottom: 1px solid var(--border);
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.project-tabs__list::-webkit-scrollbar {
+	display: none;
+}
+
+.project-tabs__tab {
+	background: none;
+	border: none;
+	color: var(--hyper-footer-text);
+	font-family: var(--font-display);
+	font-size: clamp(0.6rem, 1.4vw, 0.75rem);
+	padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.25rem);
+	cursor: pointer;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	white-space: nowrap;
+	flex-shrink: 0;
+	transition: color 0.2s ease;
+}
+
+.project-tabs__tab:hover {
+	color: var(--text);
+}
+
+.project-tabs__tab--active {
+	color: var(--accent);
+}
+
+.project-tabs__tab:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: -2px;
+}
+
+.project-tabs__indicator {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background: var(--accent);
+	transform-origin: left center;
+	transform: translateX(0) scaleX(0);
+	transition: transform 0.25s ease;
+	pointer-events: none;
+}
+
+.project-tabs__body {
+	padding-top: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+::slotted([data-tab]) {
+	display: none;
+	font-size: clamp(0.75rem, 1.8vw, 0.88rem);
+	line-height: 1.7;
+}
+
+::slotted([data-tab].project-tabs__panel--active) {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.project-tabs__tab {
+		transition: none;
+	}
+
+	.project-tabs__indicator {
+		transition: none;
+	}
+}

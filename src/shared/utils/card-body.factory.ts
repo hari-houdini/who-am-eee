@@ -35,6 +35,17 @@ function createCardBodyElement(
 	if (bodyTag === "career-timeline") {
 		return document.createElement("career-timeline");
 	}
+	if (bodyTag === "project-tabs") {
+		const el = document.createElement("project-tabs");
+		if (content) {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(content, "text/html");
+			Array.from(doc.body.childNodes).forEach((n) => {
+				el.appendChild(n.cloneNode(true));
+			});
+		}
+		return el;
+	}
 	if (content) {
 		const div = document.createElement("div");
 		const parser = new DOMParser();

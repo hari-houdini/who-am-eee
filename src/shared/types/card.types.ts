@@ -21,6 +21,8 @@ type Card = {
 	 * `'tech-skills'` renders the `<tech-skills>` technology stack grid.
 	 * `'management-skills'` renders the `<management-skills>` methodology grid.
 	 * `'photo-gallery'` renders the `<photo-gallery>` dog photo gallery.
+	 * `'project-tabs'` renders the `<project-tabs>` keyboard-accessible tab panel;
+	 *   the `content` field supplies `<div data-tab="Label">…</div>` panel children.
 	 * Omit for generic HTML content.
 	 */
 	bodyTag?:
@@ -30,7 +32,8 @@ type Card = {
 		| "forbidden-space"
 		| "social-space"
 		| "photo-gallery"
-		| "career-timeline";
+		| "career-timeline"
+		| "project-tabs";
 	/** HTML string for the card body content, parsed via DOMParser. */
 	content: string;
 	/**

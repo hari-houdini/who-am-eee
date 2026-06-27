@@ -4,7 +4,6 @@ import type {
   SpaceConfig,
   SpaceState,
 } from './hyper.types';
-import tabsHtml from './tabs.html' with { type: 'text' };
 
 /**
  * Initial mutable state for the hyper-space animation loop.
@@ -150,7 +149,27 @@ const CARDS: Cards = {
       x: -100,
       rotation: -3,
       modal: true,
-      content: `${tabsHtml}`,
+      bodyTag: 'project-tabs' as const,
+      content: `
+        <div data-tab="Description">
+          <strong>A food expiry tracker that judges you for letting things rot.</strong>
+          <p>He started this one with good intentions. To track what's in your fridge,
+          get notified before it goes bad, stop wasting food. Then it grew. Now it has
+          AI-powered photo recognition, a RAG pipeline, multi-user kitchens, and
+          notifications written to roast you for forgetting about that lettuce.
+          The scope crept. He let it.</p>
+        </div>
+        <div data-tab="Learnings">
+          <p>Designing a RAG pipeline from scratch — chunking strategy, embedding
+          generation, retrieval logic — and how much planning it takes before a single
+          line of production code gets written.</p>
+        </div>
+        <div data-tab="Goals">
+          <p>Whether a 20-section TDD survives first contact with an actual build.
+          Also: image processing pipelines, and keeping AI API costs near zero on a
+          free-tier architecture.</p>
+        </div>
+      `,
       size: 'l',
     },
     {
