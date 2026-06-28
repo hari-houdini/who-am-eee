@@ -1,7 +1,375 @@
 <div class="vignette"></div>
 <div class="noise"></div>
-<!-- <canvas class="constellation" id="constellation"></canvas> -->
 
 <div class="viewport" id="viewport">
-	<div class="viewport__content" id="world"></div>
+	<div class="viewport__content" id="world">
+		<!-- above_the_fold — z: -200 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-200"
+			data-rotation="0"
+		>
+			<div class="section__item--title">Hari H🍑udini</div>
+		</div>
+
+		<!-- about — z: -1400 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-1400"
+			data-rotation="0"
+		>
+			<div class="section__item--title">whoami</div>
+		</div>
+
+		<!-- PROJ.SUMMARY — z: -2600 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="0"
+			data-y="0"
+			data-z="-2600"
+			data-rotation="4"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.SUMMARY"
+				heading="Eight years into this circus"
+				tags="Senior Web Engineer · TypeScript · AWS · Docker"
+				year="since 2018"
+				body-tag="about-me"
+				modal
+			>
+				<about-me slot="body-content"></about-me>
+			</hyper-card>
+		</div>
+
+		<!-- tech_stack — z: -3800 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-3800"
+			data-rotation="0"
+		>
+			<div class="section__item--title">
+				Package.Json
+				<div class="section__item--tagline">(Self reported skills!)</div>
+			</div>
+		</div>
+
+		<!-- PROJ.TECHNICAL — z: -5000 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="60"
+			data-y="0"
+			data-z="-5000"
+			data-rotation="-4"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.TECHNICAL"
+				heading="Dark Matter"
+				tags="TypeScript Engineer · Frontend · Backend · Cloud"
+				year="** Non-Exhaustive List"
+				body-tag="tech-skills"
+				modal
+			>
+				<tech-skills slot="body-content"></tech-skills>
+			</hyper-card>
+		</div>
+
+		<!-- PROJ.MANAGEMENT — z: -6200 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="-60"
+			data-y="0"
+			data-z="-6200"
+			data-rotation="3"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.MANAGEMENT"
+				heading="Grey Matter"
+				tags="Mid-Level · Senior"
+				year="Since 2020"
+				body-tag="management-skills"
+				modal
+			>
+				<management-skills slot="body-content"></management-skills>
+			</hyper-card>
+		</div>
+
+		<!-- projects — z: -7400 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-7400"
+			data-rotation="0"
+		>
+			<div class="section__item--title">Incomplete Projects</div>
+		</div>
+
+		<!-- PROJ.REPOS.001 — z: -8600 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="-100"
+			data-y="0"
+			data-z="-8600"
+			data-rotation="-3"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.REPOS.001"
+				heading="Gone Bad"
+				tags="Expo SDK 52 · React Native · Supabase (Postgres, pgvector, Storage, Auth, Edge Functions) · Google Gemini 2.0 Flash · RAG pipeline"
+				year="est. 03/2026"
+				body-tag="project-tabs"
+				modal
+			>
+				<project-tabs
+					slot="body-content"
+					data-project-id="PROJ.REPOS.001"
+				></project-tabs>
+			</hyper-card>
+		</div>
+
+		<!-- PROJ.REPOS.002 — z: -9800 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="100"
+			data-y="0"
+			data-z="-9800"
+			data-rotation="3"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.REPOS.002"
+				heading="The Royal Ruse"
+				tags="Godot 4.3 · Hexagonal Architecture (Ports and Adapters) · GUT (testing) · Docker"
+				year="est. 04/2026"
+				body-tag="project-tabs"
+				modal
+			>
+				<project-tabs
+					slot="body-content"
+					data-project-id="PROJ.REPOS.002"
+				></project-tabs>
+			</hyper-card>
+		</div>
+
+		<!-- PROJ.REPOS.003 — z: -11000 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="-100"
+			data-y="0"
+			data-z="-11000"
+			data-rotation="-3"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.REPOS.003"
+				heading="Yo Mama"
+				tags="Angular 19 · RxJS · SSR/SSG · Rust · Decorator Pattern"
+				year="est. 01/2025"
+				body-tag="project-tabs"
+				modal
+			>
+				<project-tabs
+					slot="body-content"
+					data-project-id="PROJ.REPOS.003"
+				></project-tabs>
+			</hyper-card>
+		</div>
+
+		<!-- timeline — z: -12200 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-12200"
+			data-rotation="0"
+		>
+			<div class="section__item--title">Life in a fast lane</div>
+		</div>
+
+		<!-- PROJ.TIMELINE — z: -13400 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="0"
+			data-y="0"
+			data-z="-13400"
+			data-rotation="-2"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.TIMELINE"
+				heading="Life in a fast lane"
+				tags="Zoho · MISDI · Pixel Toys · ECE"
+				year="** in that order **"
+				body-tag="career-timeline"
+				modal
+			>
+				<career-timeline slot="body-content"></career-timeline>
+			</hyper-card>
+		</div>
+
+		<!-- job_stats — z: -14600 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-14600"
+			data-rotation="0"
+		>
+			<div class="section__item--title">Skill Issue</div>
+		</div>
+
+		<!-- PROJ.JOB_APPLICATIONS — z: -15800 (no modal) -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="0"
+			data-y="0"
+			data-z="-15800"
+			data-rotation="-4"
+		>
+			<hyper-card
+				size="s"
+				card-id="PROJ.JOB_APPLICATIONS"
+				heading="Luck so far"
+				tags="Ghostings · Rejections · Pending"
+				year="Sign an NDA to unlock"
+				body-tag="forbidden-space"
+			>
+				<forbidden-space slot="body-content"></forbidden-space>
+			</hyper-card>
+		</div>
+
+		<!-- contact — z: -17000 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-17000"
+			data-rotation="0"
+		>
+			<div class="section__item--title">
+				Wanna be the next victim?
+				<div class="section__item--tagline">Seriously, Employ me!</div>
+			</div>
+		</div>
+
+		<!-- PROJ.SOCIALS — z: -18200 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="0"
+			data-y="0"
+			data-z="-18200"
+			data-rotation="3"
+		>
+			<hyper-card
+				size="m"
+				card-id="PROJ.SOCIALS"
+				heading="Lets talk business!"
+				tags="Not active on Facebook"
+				year="mailto: bonjour@harihoudini.com"
+				body-tag="social-space"
+				modal
+			>
+				<social-space slot="body-content"></social-space>
+			</hyper-card>
+		</div>
+
+		<!-- footer — z: -19400 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-19400"
+			data-rotation="0"
+		>
+			<div class="section__item--title">
+				You actually scrolled this far?
+				<div class="section__item--tagline">Congrats, you hit rock bottom</div>
+			</div>
+		</div>
+
+		<!-- PROJ.GALLERY — z: -20600 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="card"
+			data-x="0"
+			data-y="0"
+			data-z="-20600"
+			data-rotation="0"
+		>
+			<hyper-card
+				size="l"
+				card-id="PROJ.GALLERY"
+				heading="Here's your gift"
+				tags="Good Girl · Very Important"
+				year="2024"
+				body-tag="photo-gallery"
+				modal
+			>
+				<photo-gallery slot="body-content"></photo-gallery>
+			</hyper-card>
+		</div>
+
+		<!-- truman_show — z: -21800 -->
+		<div
+			class="section__item"
+			data-anim-element
+			data-type="text"
+			data-x="0"
+			data-y="0"
+			data-z="-21800"
+			data-rotation="0"
+		>
+			<div class="section__item--title">
+				In case I dont see ya...
+				<div class="section__item--tagline">
+					Good afternoon, Good evening and Good night
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

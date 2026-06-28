@@ -1,71 +1,5 @@
 import { LerpScroll } from "../../shared/utils/lerp-scroll.utils";
-import { createCardElement } from "../card/card.factory";
-import {
-	CARDS,
-	INITIAL_SPACE_STATE,
-	LABELS,
-	SPACE_CONFIG,
-} from "./hyper.const";
-
-/**
- * Populates the `#world` element with all scene items:
- * section text labels and portfolio cards.
- *
- * Items are assigned `data-*` attributes consumed each frame by {@link rafLoop}.
- * Labels and cards are placed at evenly-spaced Z intervals defined by
- * {@link SpaceConfig.zGap}.
- *
- * @param world - The container element to populate (the `#world` div inside Shadow DOM).
- */
-function initWorld(world: HTMLElement): void {
-	let zIndex = -200;
-	const vpScale = Math.min(1, window.innerWidth / 500);
-
-	Object.entries(LABELS).forEach(([key, { text, description }]) => {
-		const wrapper = document.createElement("div");
-		wrapper.className = "section__item";
-		wrapper.dataset.animElement = "";
-		wrapper.dataset.type = "text";
-		wrapper.dataset.x = "0";
-		wrapper.dataset.y = "0";
-		wrapper.dataset.z = String(zIndex);
-		wrapper.dataset.rotation = "0";
-
-		const inner = document.createElement("div");
-		inner.className = "section__item--title";
-		inner.textContent = text;
-
-		if (description) {
-			const descriptionEl = document.createElement("div");
-			descriptionEl.className = "section__item--tagline";
-			descriptionEl.textContent = description;
-			inner.appendChild(descriptionEl);
-		}
-
-		wrapper.appendChild(inner);
-		world.appendChild(wrapper);
-
-		zIndex -= SPACE_CONFIG.zGap;
-
-		const cards = CARDS[key] ?? [];
-
-		cards.forEach((card) => {
-			const cardWrapper = document.createElement("div");
-			cardWrapper.className = "section__item";
-			cardWrapper.dataset.animElement = "";
-			cardWrapper.dataset.type = "card";
-			cardWrapper.dataset.x = String((card.x ?? 0) * vpScale);
-			cardWrapper.dataset.y = String(card.y ?? 0);
-			cardWrapper.dataset.z = String(zIndex);
-			cardWrapper.dataset.rotation = String(card.rotation ?? 0);
-
-			zIndex -= SPACE_CONFIG.zGap;
-
-			cardWrapper.appendChild(createCardElement(card));
-			world.appendChild(cardWrapper);
-		});
-	});
-}
+import { INITIAL_SPACE_STATE, SPACE_CONFIG } from "./hyper.const";
 
 /**
  * Entry point called from the `<hyper-space>` element's `connectedCallback`.
@@ -75,7 +9,7 @@ function initWorld(world: HTMLElement): void {
  * delegates the per-frame rendering to {@link rafLoop}.
  *
  * @param context - The `<hyper-space>` custom element. Its Shadow DOM must
- *   already be attached and must contain a `#world` element.
+ *   already be attached; the scene items are declared in `hyper.template.html`.
  * @returns Cleanup function to call from `disconnectedCallback`.
  */
 function loadHyperSpaceAnimation(context: HTMLElement): () => void {
@@ -83,11 +17,7 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
 
 	const state = { ...INITIAL_SPACE_STATE };
 
-	const world = context.shadowRoot.getElementById("world");
-
-	if (!world) return () => {};
-
-	initWorld(world);
+	if (!context.shadowRoot.getElementById("world")) return () => {};
 
 	const lerp = new LerpScroll(0.08);
 
@@ -285,7 +215,9 @@ function rafLoop(
 		}
 
 		const cameraZ = state.scroll * SPACE_CONFIG.camSpeed;
-		const modC = SPACE_CONFIG.loopSize;
+		// loopSize derived from the actual DOM count so it stays correct
+		// if items are added to hyper.template.html without touching this file.
+		const modC = animElements.length * SPACE_CONFIG.zGap;
 
 		items.forEach((item, i) => {
 			const relZ = item.baseZ + cameraZ;
