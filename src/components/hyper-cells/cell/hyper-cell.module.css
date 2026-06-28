@@ -89,6 +89,11 @@
 	width: clamp(1.5rem, 4vw, 3rem);
 	height: clamp(1.5rem, 4vw, 3rem);
 	display: block;
+  fill: var(--bg) !important;
+
+  path {
+    fill: var(--bg) !important;
+  }
 }
 
 .hyper-cell__label {
