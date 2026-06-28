@@ -1,41 +1,31 @@
-import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
-import cssText from "./about-me.module.css" with { type: "text" };
 import templateHtml from "./about-me.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<about-me>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<about-me>` — self-contained biography component.
  *
- * Renders a static biography section with no observed attributes or slots.
- * Content is defined in `about-me.template.html` and injected into shadow DOM.
+ * Renders a static biography section into light DOM. Styles are applied via
+ * the globally-linked `about-me.module.css`. No observed attributes or slots.
  *
  * @customElement about-me
  */
 class AboutMe extends HTMLElement {
-	constructor() {
-		super();
-		const shadow = this.attachShadow({ mode: "open" });
-
+	/**
+	 * Hydrates the component from its HTML template on first connection.
+	 * DOM construction here (not in the constructor) satisfies the Custom Elements spec,
+	 * which forbids appending to `this` before the constructor returns.
+	 * The `firstChild` guard prevents double-render on re-connection.
+	 */
+	connectedCallback(): void {
+		if (this.firstChild !== null) return;
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
-
-		adoptStyles(shadow, sheet, cssText.toString());
+		Array.from(doc.body.childNodes).forEach((n) => {
+			this.appendChild(n.cloneNode(true));
+		});
 	}
-
-	/** No-op: component is fully static, no setup needed on connection. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners or RAF loops to clean up. */
 	disconnectedCallback(): void {}

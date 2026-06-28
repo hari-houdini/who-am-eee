@@ -1,4 +1,4 @@
-:host {
+about-me {
 	display: block;
 	color: var(--text);
 	font-family: var(--font-display);
@@ -11,15 +11,15 @@
 	padding: 0;
 }
 
-p {
+.about-me p {
 	margin: 0 0 clamp(0.5rem, 1.5vw, 0.75rem);
 }
 
-p:last-of-type {
+.about-me p:last-of-type {
 	margin-bottom: 1rem;
 }
 
-em {
+.about-me em {
 	color: var(--accent);
 	font-style: italic;
 }

@@ -1,42 +1,31 @@
-import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
-import cssText from "./photo-gallery.module.css" with { type: "text" };
 import templateHtml from "./photo-gallery.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<photo-gallery>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<photo-gallery>` — self-contained dog photo gallery component.
  *
- * Renders a static grid of four images wrapped in `.gallery` layout.
- * Content is defined in `photo-gallery.template.html` and injected into shadow DOM.
- * No observed attributes or consumer-facing slots — fully self-contained.
+ * Renders a static grid of four images into light DOM. Styles are applied via
+ * the globally-linked `photo-gallery.module.css`. No observed attributes or slots.
  *
  * @customElement photo-gallery
  */
 class PhotoGallery extends HTMLElement {
-	constructor() {
-		super();
-		const shadow = this.attachShadow({ mode: "open" });
-
+	/**
+	 * Hydrates the component from its HTML template on first connection.
+	 * DOM construction here (not in the constructor) satisfies the Custom Elements spec,
+	 * which forbids appending to `this` before the constructor returns.
+	 * The `firstChild` guard prevents double-render on re-connection.
+	 */
+	connectedCallback(): void {
+		if (this.firstChild !== null) return;
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
 		Array.from(doc.body.childNodes).forEach((n) => {
-			shadow.appendChild(n.cloneNode(true));
+			this.appendChild(n.cloneNode(true));
 		});
-
-		adoptStyles(shadow, sheet, cssText.toString());
 	}
-
-	/** No-op: component is fully static, no setup needed on connection. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners or RAF loops to clean up. */
 	disconnectedCallback(): void {}

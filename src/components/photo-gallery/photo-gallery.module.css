@@ -1,4 +1,4 @@
-:host {
+photo-gallery {
 	display: block;
 	--gallery-bg: #efecdb;
 	--gallery-shadow: #5f2f1182;
@@ -27,16 +27,16 @@
 	box-shadow: 0 10px 50px var(--gallery-shadow);
 }
 
-.gallery__item:hover .gallery__image {
-	filter: none;
-}
-
 .gallery__image {
 	max-width: clamp(150px, 40vw, 400px);
 	max-height: clamp(150px, 40vw, 400px);
 	transition: filter 0.5s;
 	vertical-align: top;
 	filter: saturate(40%) sepia(30%) hue-rotate(5deg);
+}
+
+.gallery__item:hover .gallery__image {
+	filter: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

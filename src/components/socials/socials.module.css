@@ -1,9 +1,7 @@
-:host {
+social-space {
 	display: block;
 }
 
-/* SVG icons slotted into <hyper-cell> live in this shadow DOM.
-   ::slotted cannot pierce into SVG children, so we target them directly. */
 hyper-cell [slot="hyper-cell-icon"] * {
 	fill: var(--bg);
 }

@@ -8,26 +8,6 @@ import {
 } from "./hyper.const";
 
 /**
- * Creates a paused Web Animations API animation that immediately holds the
- * provided keyframe via `fill: 'forwards'`. Update the displayed value each
- * frame with `(anim.effect as KeyframeEffect).setKeyframes([newKeyframe])`.
- *
- * WAA effects do not write style attributes, so this is safe under strict
- * `style-src 'self'` CSP directives.
- *
- * @param el - Target element to animate.
- * @param keyframe - Initial CSS keyframe applied immediately.
- * @returns Paused {@link Animation} ready for per-frame keyframe updates.
- */
-function makeStaticAnim(el: Element, keyframe: Keyframe): Animation {
-	const anim = el.animate([keyframe], { duration: 1, fill: "forwards" });
-	// Seek to the end so fill: 'forwards' applies the keyframe right away.
-	anim.currentTime = 1;
-	anim.pause();
-	return anim;
-}
-
-/**
  * Populates the `#world` element with all scene items:
  * section text labels and portfolio cards.
  *
@@ -153,21 +133,22 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
  * 1. Calls `lerp.raf(time)` (no-op kept for API symmetry).
  * 2. Smooths `state.velocity` toward `state.targetSpeed` via lerp.
  * 3. Applies camera tilt from mouse position and scroll speed (skipped under
- *    `prefers-reduced-motion: reduce`) via Web Animations API.
- * 4. Adjusts perspective (FOV warp) based on speed via Web Animations API —
- *    cached to avoid a keyframe update every frame when velocity is stable.
+ *    `prefers-reduced-motion: reduce`) via CSSOM {@link CSSStyleRule} updates.
+ * 4. Adjusts perspective (FOV warp) based on speed — cached to skip the rule
+ *    write when velocity is stable.
  * 5. Positions every scene item along the Z axis with depth-looping and opacity
- *    fade via Web Animations API.
+ *    fade via CSSOM {@link CSSStyleRule} updates.
  *
- * All visual mutations use WAA `KeyframeEffect.setKeyframes()` instead of
- * `element.style.*` writes. WAA effects operate on the Animation model and do
- * NOT create or modify style attributes, making this loop safe under strict
- * `style-src 'self'` CSP with no `unsafe-*` keywords required.
+ * Visual mutations go through a programmatically-created {@link CSSStyleSheet}
+ * adopted into the shadow root. `CSSStyleRule.style.*` writes modify an existing
+ * stylesheet rule — NOT the element's inline style attribute — so this loop is
+ * fully safe under `style-src 'self'` CSP with no `unsafe-*` keywords required.
+ * This also eliminates the `animation.effect` null-access crash on Safari.
  *
  * @param lerp - The {@link LerpScroll} instance providing the scroll clock.
  * @param state - Mutable scene state mutated by scroll and mouse listeners.
  * @param root - Shadow root of the `<hyper-space>` element.
- * @returns Cleanup function that cancels the RAF loop.
+ * @returns Cleanup function that cancels the RAF loop and removes the animation stylesheet.
  */
 function rafLoop(
 	lerp: LerpScroll,
@@ -179,18 +160,11 @@ function rafLoop(
 
 	if (!world || !viewport) return () => {};
 
-	const worldEl: HTMLElement = world;
-	const viewportEl: HTMLElement = viewport;
-
 	const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 	const animElements = Array.from<HTMLElement>(
 		root.querySelectorAll("[data-anim-element]"),
 	);
-
-	// WAA instances for the camera-level transforms.
-	const worldAnim = makeStaticAnim(worldEl, { transform: "none" });
-	const viewportAnim = makeStaticAnim(viewportEl, { perspective: "1000px" });
 
 	/** Per-item animation data. */
 	type ItemData = {
@@ -210,12 +184,10 @@ function rafLoop(
 		txPrefix: string;
 		/** Pre-computed `rotateZ` suffix — empty string when rotation is 0. */
 		rzSuffix: string;
-		/** WAA animation controlling transform and opacity for this element. */
-		anim: Animation;
 		/** Inner title element for text items; `null` for cards. */
 		titleEl: HTMLElement | null;
-		/** WAA animation controlling backgroundPosition and textShadow on the title. */
-		titleAnim: Animation | null;
+		/** Whether the element currently carries the hidden class — guards redundant classList mutations. */
+		hidden: boolean;
 	};
 
 	const items: ItemData[] = animElements.map((el) => {
@@ -224,22 +196,9 @@ function rafLoop(
 		const baseZ = Number(el.dataset.z ?? "0");
 		const rotation = Number(el.dataset.rotation ?? "0");
 
-		const anim = makeStaticAnim(el, {
-			transform: "translate3d(0,0,0)",
-			opacity: "1",
-		});
-
 		const titleEl =
 			el.dataset.type === "text"
 				? el.querySelector<HTMLElement>(".section__item--title")
-				: null;
-
-		const titleAnim =
-			titleEl !== null
-				? makeStaticAnim(titleEl, {
-						backgroundPosition: "40% 50%",
-						textShadow: "none",
-					})
 				: null;
 
 		return {
@@ -251,13 +210,55 @@ function rafLoop(
 			rotation,
 			txPrefix: `translate3d(${x}px, ${y}px, `,
 			rzSuffix: rotation !== 0 ? ` rotateZ(${rotation}deg)` : "",
-			anim,
 			titleEl,
-			titleAnim,
+			hidden: false,
 		};
 	});
 
-	/** Last perspective (FOV) value written; avoids a keyframe update every frame when velocity is stable. */
+	// Build a per-element CSSStyleSheet inside the shadow root.
+	// CSSStyleRule.style.* writes modify an existing stylesheet rule — NOT the
+	// element's inline style attribute — so they are safe under style-src 'self'.
+	const animSheet = new CSSStyleSheet();
+
+	// Insert rules in sequential index order:
+	// 0 = #world, 1 = #viewport, 2…N-1 = scene items, N… = title elements.
+	animSheet.insertRule("#world { }", 0);
+	animSheet.insertRule("#viewport { }", 1);
+
+	items.forEach((item, i) => {
+		item.el.dataset.si = String(i);
+		animSheet.insertRule(`[data-si="${i}"] { }`, animSheet.cssRules.length);
+	});
+
+	/**
+	 * Maps item array index → CSSOM rule index for title elements (text items only).
+	 * Built once at setup; read O(1) each frame.
+	 */
+	const titleRuleMap = new Map<number, number>();
+	items.forEach((item, i) => {
+		if (!item.titleEl) return;
+		item.titleEl.dataset.sti = String(i);
+		titleRuleMap.set(i, animSheet.cssRules.length);
+		animSheet.insertRule(`[data-sti="${i}"] { }`, animSheet.cssRules.length);
+	});
+
+	root.adoptedStyleSheets = [...root.adoptedStyleSheets, animSheet];
+
+	// Cache CSSStyleRule references for O(1) per-frame access.
+	// item() returns CSSRule | null (avoids the noUncheckedIndexedAccess concern on indexers).
+	// Rules were just inserted so these indices are guaranteed valid — guard is belt-and-suspenders.
+	const worldRuleRaw = animSheet.cssRules.item(0);
+	const viewportRuleRaw = animSheet.cssRules.item(1);
+	if (!worldRuleRaw || !viewportRuleRaw) return () => {};
+	const worldRule = worldRuleRaw as CSSStyleRule;
+	const viewportRule = viewportRuleRaw as CSSStyleRule;
+	/** Parallel array of CSSStyleRules for scene items, indexed by item position. */
+	const itemStyleRules: Array<CSSStyleRule | null> = items.map((_, i) => {
+		const rule = animSheet.cssRules.item(2 + i);
+		return rule !== null ? (rule as CSSStyleRule) : null;
+	});
+
+	/** Last perspective (FOV) value written; avoids a rule update every frame when velocity is stable. */
 	let lastFov = -1;
 
 	/** Most-recently scheduled RAF handle; updated each frame so cleanup can cancel. */
@@ -273,17 +274,12 @@ function rafLoop(
 		if (!reduceMotion.matches) {
 			const tiltX = state.mouseY * 5 - state.velocity * 0.5;
 			const tiltY = state.mouseX * 5;
-			// el.animate() always creates a KeyframeEffect — the cast is safe.
-			(worldAnim.effect as KeyframeEffect).setKeyframes([
-				{ transform: `rotateX(${tiltX}deg) rotateY(${tiltY}deg)` },
-			]);
+			worldRule.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
 
 			const baseFov = 1000;
 			const fov = baseFov - Math.min(Math.abs(state.velocity) * 10, 600);
 			if (Math.abs(fov - lastFov) > 0.5) {
-				(viewportAnim.effect as KeyframeEffect).setKeyframes([
-					{ perspective: `${fov}px` },
-				]);
+				viewportRule.style.perspective = `${fov}px`;
 				lastFov = fov;
 			}
 		}
@@ -291,7 +287,7 @@ function rafLoop(
 		const cameraZ = state.scroll * SPACE_CONFIG.camSpeed;
 		const modC = SPACE_CONFIG.loopSize;
 
-		items.forEach((item) => {
+		items.forEach((item, i) => {
 			const relZ = item.baseZ + cameraZ;
 			let vizZ = ((relZ % modC) + modC) % modC;
 			if (vizZ > 1000) vizZ -= modC;
@@ -305,19 +301,27 @@ function rafLoop(
 			}
 
 			if (alpha <= 0) {
-				item.el.classList.add("section__item--hidden");
+				if (!item.hidden) {
+					item.el.classList.add("section__item--hidden");
+					item.hidden = true;
+				}
 				return;
 			}
 
-			item.el.classList.remove("section__item--hidden");
+			if (item.hidden) {
+				item.el.classList.remove("section__item--hidden");
+				item.hidden = false;
+			}
 
 			let trans = `${item.txPrefix}${vizZ}px)`;
+
+			const itemRule = itemStyleRules[i];
 
 			switch (item.type) {
 				case "text": {
 					trans += item.rzSuffix;
 
-					if (!reduceMotion.matches && item.titleEl && item.titleAnim) {
+					if (!reduceMotion.matches && item.titleEl) {
 						const transX = (-state.mouseX / (state.mouseX + 50)) * 100;
 						const transY = (-state.mouseY / (state.mouseY + 50)) * 100;
 
@@ -326,12 +330,15 @@ function rafLoop(
 								? `${state.velocity * 2}px 0 red, ${-state.velocity * 2}px 0 cyan`
 								: "none";
 
-						(item.titleAnim.effect as KeyframeEffect).setKeyframes([
-							{
-								backgroundPosition: `${transX}% ${transY}%`,
-								textShadow: shadow,
-							},
-						]);
+						const titleRuleIdx = titleRuleMap.get(i);
+						if (titleRuleIdx !== undefined) {
+							const rawTitleRule = animSheet.cssRules.item(titleRuleIdx);
+							if (rawTitleRule) {
+								const titleRule = rawTitleRule as CSSStyleRule;
+								titleRule.style.backgroundPosition = `${transX}% ${transY}%`;
+								titleRule.style.textShadow = shadow;
+							}
+						}
 					}
 					break;
 				}
@@ -347,18 +354,19 @@ function rafLoop(
 				}
 			}
 
-			(item.anim.effect as KeyframeEffect).setKeyframes([
-				{
-					transform: trans,
-					opacity: String(alpha),
-				},
-			]);
+			if (itemRule) {
+				itemRule.style.transform = trans;
+				itemRule.style.opacity = String(alpha);
+			}
 		});
 	}
 
 	currentRafId = window.requestAnimationFrame(raf);
 	return (): void => {
 		cancelAnimationFrame(currentRafId);
+		root.adoptedStyleSheets = root.adoptedStyleSheets.filter(
+			(s) => s !== animSheet,
+		);
 	};
 }
 

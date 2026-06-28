@@ -1,39 +1,31 @@
-import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
-import cssText from "./locked.module.css" with { type: "text" };
 import templateHtml from "./locked.template.html" with { type: "text" };
 
-/** Parsed CSS stylesheet shared across all `<forbidden-space>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
-
 /**
- * `<forbidden-space>` — self-contained component, to hide content.
- * No observed attributes or consumer-facing slots — fully self-contained.
+ * `<forbidden-space>` — self-contained component to hide content behind a lock.
+ *
+ * Renders into light DOM. Styles are applied via the globally-linked
+ * `locked.module.css`. No observed attributes or consumer-facing slots.
  *
  * @customElement forbidden-space
  */
 class ForbiddenSpace extends HTMLElement {
-	constructor() {
-		super();
-		const shadow = this.attachShadow({ mode: "open" });
-
+	/**
+	 * Hydrates the component from its HTML template on first connection.
+	 * DOM construction here (not in the constructor) satisfies the Custom Elements spec,
+	 * which forbids appending to `this` before the constructor returns.
+	 * The `firstChild` guard prevents double-render on re-connection.
+	 */
+	connectedCallback(): void {
+		if (this.firstChild !== null) return;
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
 		Array.from(doc.body.childNodes).forEach((n) => {
-			shadow.appendChild(n.cloneNode(true));
+			this.appendChild(n.cloneNode(true));
 		});
-
-		adoptStyles(shadow, sheet, cssText.toString());
 	}
-
-	/** No-op: component is fully static, no setup needed on connection. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners or RAF loops to clean up. */
 	disconnectedCallback(): void {}
