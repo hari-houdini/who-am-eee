@@ -56,8 +56,8 @@ const LABELS: Label = {
     text: 'whoami',
   },
   tech_stack: {
-    text: 'Capabilities',
-    description: '(Self reported!)',
+    text: 'Package.Json',
+    description: '(Self reported skills!)',
   },
   projects: {
     text: 'Incomplete Projects',
