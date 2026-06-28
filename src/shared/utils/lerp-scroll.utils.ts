@@ -38,6 +38,12 @@ class LerpScroll {
 	/** Linear interpolation factor per frame (0 < lerp < 1). */
 	readonly #lerp: number;
 
+	/**
+	 * Upper bound on `#targetY`. Wheel and touch deltas are clamped here so
+	 * the user cannot scroll past the last scene item.
+	 */
+	readonly #maxScroll: number;
+
 	/** Whether scroll callbacks should fire this tick. */
 	#running = true;
 
@@ -61,9 +67,13 @@ class LerpScroll {
 	 *
 	 * @param lerp - Interpolation factor per frame. `0.08` matches the default
 	 *   feel of Lenis 1.x.
+	 * @param maxScroll - Maximum virtual scroll position in pixels. Defaults to
+	 *   `Infinity` (unbounded). Pass the scene end position to prevent scrolling
+	 *   past the last item.
 	 */
-	constructor(lerp = 0.08) {
+	constructor(lerp = 0.08, maxScroll = Infinity) {
 		this.#lerp = lerp;
+		this.#maxScroll = maxScroll;
 		window.addEventListener("wheel", this.#onWheel, { passive: true });
 		window.addEventListener("touchstart", this.#onTouchStart, {
 			passive: true,
@@ -80,6 +90,7 @@ class LerpScroll {
 		else if (e.deltaMode === 2) delta *= window.innerHeight;
 		this.#targetY += delta;
 		if (this.#targetY < 0) this.#targetY = 0;
+		if (this.#targetY > this.#maxScroll) this.#targetY = this.#maxScroll;
 	};
 
 	/** @internal */
@@ -95,6 +106,7 @@ class LerpScroll {
 		this.#lastTouchY = y;
 		this.#targetY += delta;
 		if (this.#targetY < 0) this.#targetY = 0;
+		if (this.#targetY > this.#maxScroll) this.#targetY = this.#maxScroll;
 	};
 
 	/** @internal */

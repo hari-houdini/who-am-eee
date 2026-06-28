@@ -4,8 +4,9 @@ import { INITIAL_SPACE_STATE, SPACE_CONFIG } from "./hyper.const";
 /**
  * Entry point called from the `<hyper-space>` element's `connectedCallback`.
  *
- * Initialises the scene DOM via {@link initWorld}, creates a {@link LerpScroll}
- * instance, registers scroll and mouse listeners that update shared state, then
+ * Reads the pre-baked scene items from `hyper.template.html` to compute the
+ * maximum scroll position, creates a {@link LerpScroll} instance clamped to that
+ * value, registers scroll and mouse listeners that update shared state, then
  * delegates the per-frame rendering to {@link rafLoop}.
  *
  * @param context - The `<hyper-space>` custom element. Its Shadow DOM must
@@ -19,7 +20,19 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
 
 	if (!context.shadowRoot.getElementById("world")) return () => {};
 
-	const lerp = new LerpScroll(0.08);
+	// Compute the max scroll from the deepest item's z so the camera stops
+	// just as the last item is comfortably visible (vizZ ≈ -200).
+	const allAnimEls = context.shadowRoot.querySelectorAll<HTMLElement>(
+		"[data-anim-element]",
+	);
+	let lastItemZ = 0;
+	allAnimEls.forEach((el) => {
+		const z = Number(el.dataset.z ?? "0");
+		if (z < lastItemZ) lastItemZ = z;
+	});
+	const maxScroll = (Math.abs(lastItemZ) - 200) / SPACE_CONFIG.camSpeed;
+
+	const lerp = new LerpScroll(0.08, maxScroll);
 
 	lerp.on(
 		"scroll",
@@ -29,10 +42,11 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
 		},
 	);
 
-	window.addEventListener("mousemove", (e: MouseEvent) => {
+	const onMouseMove = (e: MouseEvent): void => {
 		state.mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
 		state.mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-	});
+	};
+	window.addEventListener("mousemove", onMouseMove);
 
 	const cancelRaf = rafLoop(lerp, state, context.shadowRoot);
 
@@ -51,6 +65,7 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
 	return (): void => {
 		lerp.destroy();
 		cancelRaf();
+		window.removeEventListener("mousemove", onMouseMove);
 		window.removeEventListener("card:modal-opened", onModalOpen);
 		window.removeEventListener("card:modal-closed", onModalClose);
 	};
@@ -66,8 +81,9 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
  *    `prefers-reduced-motion: reduce`) via CSSOM {@link CSSStyleRule} updates.
  * 4. Adjusts perspective (FOV warp) based on speed — cached to skip the rule
  *    write when velocity is stable.
- * 5. Positions every scene item along the Z axis with depth-looping and opacity
- *    fade via CSSOM {@link CSSStyleRule} updates.
+ * 5. Positions every scene item along the Z axis and computes opacity fade
+ *    via CSSOM {@link CSSStyleRule} updates. Scroll is clamped externally by
+ *    {@link LerpScroll} so items do not loop — the scene has a defined end.
  *
  * Visual mutations go through a programmatically-created {@link CSSStyleSheet}
  * adopted into the shadow root. `CSSStyleRule.style.*` writes modify an existing
@@ -148,7 +164,36 @@ function rafLoop(
 	// Build a per-element CSSStyleSheet inside the shadow root.
 	// CSSStyleRule.style.* writes modify an existing stylesheet rule — NOT the
 	// element's inline style attribute — so they are safe under style-src 'self'.
-	const animSheet = new CSSStyleSheet();
+	//
+	// adoptedStyleSheets is undefined on Safari < 16.4; fall back to a <style>
+	// element whose .sheet property gives an equivalent mutable CSSStyleSheet.
+	let animSheet: CSSStyleSheet;
+	let cleanupSheet: () => void;
+
+	if (root.adoptedStyleSheets !== undefined) {
+		const sheet = new CSSStyleSheet();
+		root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
+		animSheet = sheet;
+		cleanupSheet = (): void => {
+			root.adoptedStyleSheets = root.adoptedStyleSheets.filter(
+				(s) => s !== sheet,
+			);
+		};
+	} else {
+		// Safari < 16.4: create a nonce-bearing <style> element and use its .sheet.
+		const nonce =
+			document.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')
+				?.content ?? "";
+		const styleEl = document.createElement("style");
+		if (nonce) styleEl.setAttribute("nonce", nonce);
+		root.appendChild(styleEl);
+		const sheet = styleEl.sheet;
+		if (!sheet) return () => {};
+		animSheet = sheet;
+		cleanupSheet = (): void => {
+			styleEl.remove();
+		};
+	}
 
 	// Insert rules in sequential index order:
 	// 0 = #world, 1 = #viewport, 2…N-1 = scene items, N… = title elements.
@@ -161,18 +206,18 @@ function rafLoop(
 	});
 
 	/**
-	 * Maps item array index → CSSOM rule index for title elements (text items only).
-	 * Built once at setup; read O(1) each frame.
+	 * Maps item array index → pre-cached {@link CSSStyleRule} for title elements.
+	 * Avoids per-frame `cssRules.item()` lookups for text-item parallax updates.
 	 */
-	const titleRuleMap = new Map<number, number>();
+	const titleStyleRuleMap = new Map<number, CSSStyleRule>();
 	items.forEach((item, i) => {
 		if (!item.titleEl) return;
 		item.titleEl.dataset.sti = String(i);
-		titleRuleMap.set(i, animSheet.cssRules.length);
-		animSheet.insertRule(`[data-sti="${i}"] { }`, animSheet.cssRules.length);
+		const ruleIdx = animSheet.cssRules.length;
+		animSheet.insertRule(`[data-sti="${i}"] { }`, ruleIdx);
+		const raw = animSheet.cssRules.item(ruleIdx);
+		if (raw) titleStyleRuleMap.set(i, raw as CSSStyleRule);
 	});
-
-	root.adoptedStyleSheets = [...root.adoptedStyleSheets, animSheet];
 
 	// Cache CSSStyleRule references for O(1) per-frame access.
 	// item() returns CSSRule | null (avoids the noUncheckedIndexedAccess concern on indexers).
@@ -215,14 +260,11 @@ function rafLoop(
 		}
 
 		const cameraZ = state.scroll * SPACE_CONFIG.camSpeed;
-		// loopSize derived from the actual DOM count so it stays correct
-		// if items are added to hyper.template.html without touching this file.
-		const modC = animElements.length * SPACE_CONFIG.zGap;
 
 		items.forEach((item, i) => {
-			const relZ = item.baseZ + cameraZ;
-			let vizZ = ((relZ % modC) + modC) % modC;
-			if (vizZ > 1000) vizZ -= modC;
+			// No modulo loop — scroll is clamped by LerpScroll so the camera
+			// travels the scene once and stops just past the last item.
+			const vizZ = item.baseZ + cameraZ;
 
 			let alpha = 1;
 			if (vizZ < -3000) alpha = 0;
@@ -262,14 +304,10 @@ function rafLoop(
 								? `${state.velocity * 2}px 0 red, ${-state.velocity * 2}px 0 cyan`
 								: "none";
 
-						const titleRuleIdx = titleRuleMap.get(i);
-						if (titleRuleIdx !== undefined) {
-							const rawTitleRule = animSheet.cssRules.item(titleRuleIdx);
-							if (rawTitleRule) {
-								const titleRule = rawTitleRule as CSSStyleRule;
-								titleRule.style.backgroundPosition = `${transX}% ${transY}%`;
-								titleRule.style.textShadow = shadow;
-							}
+						const titleRule = titleStyleRuleMap.get(i);
+						if (titleRule) {
+							titleRule.style.backgroundPosition = `${transX}% ${transY}%`;
+							titleRule.style.textShadow = shadow;
 						}
 					}
 					break;
@@ -296,9 +334,7 @@ function rafLoop(
 	currentRafId = window.requestAnimationFrame(raf);
 	return (): void => {
 		cancelAnimationFrame(currentRafId);
-		root.adoptedStyleSheets = root.adoptedStyleSheets.filter(
-			(s) => s !== animSheet,
-		);
+		cleanupSheet();
 	};
 }
 
