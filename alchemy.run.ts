@@ -1,6 +1,6 @@
-import * as Alchemy from 'alchemy';
-import * as Cloudflare from 'alchemy/Cloudflare';
-import * as Effect from 'effect/Effect';
+import * as Alchemy from "alchemy";
+import * as Cloudflare from "alchemy/Cloudflare";
+import * as Effect from "effect/Effect";
 
 /**
  * Alchemy infrastructure stack for the HariHoudini portfolio.
@@ -14,21 +14,22 @@ import * as Effect from 'effect/Effect';
  *   CLOUDFLARE_ACCOUNT_ID env vars).
  */
 export default Alchemy.Stack(
-  'HariHoudiniPortfolio',
-  {
-    providers: Cloudflare.providers(),
-    state: Cloudflare.state(),
-  },
-  Effect.gen(function* () {
-    const site = yield* Cloudflare.StaticSite('Portfolio', {
-      command:
-        'bun run build:prod && ' +
-        "find dist -name '*.br' -delete && " +
-        "find dist -name '*.gz' -delete",
-      outdir: 'dist',
-      main: './src/cf-worker.ts',
-    });
+	"HariHoudiniPortfolio",
+	{
+		providers: Cloudflare.providers(),
+		state: Cloudflare.state(),
+	},
+	Effect.gen(function* () {
+		const site = yield* Cloudflare.StaticSite("Portfolio", {
+			command:
+				"bun run build:prod && " +
+				"find dist -name '*.br' -delete && " +
+				"find dist -name '*.gz' -delete",
+			outdir: "dist",
+			main: "./src/cf-worker.ts",
+			domain: ["harihoudini.dev", "www.harihoudini.dev"],
+		});
 
-    return { url: site.url };
-  }),
+		return { url: site.url };
+	}),
 );
