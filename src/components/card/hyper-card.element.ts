@@ -1,26 +1,17 @@
 import type { CardOpenDetail } from "../../shared/types/card-modal.types";
-import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
-import cssText from "./hyper-card.module.css" with { type: "text" };
 import templateHtml from "./hyper-card.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<hyper-card>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<hyper-card>` — outer shell for a portfolio card in the 3D hyper-space scene.
  *
  * Composes `<card-header>`, `<card-body>`, and `<card-footer>` sub-components.
  * Observed attributes are forwarded to sub-components on connect and change.
- * A `body-content` named slot is forwarded through `<card-body>` to display
- * consumer-provided body elements (e.g. `<about-me>`, `<hyper-cells>`, or a `<div>`).
+ * Body content supplied with `slot="body-content"` is collected before template
+ * hydration and moved into `.card-body__content` after `<card-body>` connects.
  *
  * When the `modal` attribute is present, the card becomes an interactive button
  * that dispatches `card:open` on `window`, consumed by `<card-modal>`.
- * The `↗` arrow in `<card-header>` becomes visible only on modal-enabled cards via CSS.
+ * The `↗` arrow in `<card-header>` becomes visible only on modal-enabled cards.
  *
  * @customElement hyper-card
  * @remarks
@@ -41,29 +32,44 @@ class HyperCard extends HTMLElement {
 
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
+	}
+
+	/**
+	 * Hydrates template on first connect, forwarding `[slot="body-content"]` children
+	 * into `.card-body__content`. Wires modal interaction if the `modal` attribute
+	 * is present.
+	 */
+	connectedCallback(): void {
+		if (this.querySelector(".hyper-card") !== null) {
+			if (this.hasAttribute("modal")) this.#bindModalInteraction();
+			return;
+		}
+
+		// Collect and detach body-content children BEFORE appending template
+		// so the sub-component query in card-body.connectedCallback finds an empty slot.
+		const bodyEls = Array.from(
+			this.querySelectorAll<Element>('[slot="body-content"]'),
+		);
+		for (const el of bodyEls) el.remove();
 
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
+		// Each appendChild fires sub-component connectedCallback synchronously,
+		// so card-body is fully hydrated by the time we query .card-body__content.
 		Array.from(doc.body.childNodes).forEach((n) => {
-			shadow.appendChild(n.cloneNode(true));
+			this.appendChild(n.cloneNode(true));
 		});
 
-		adoptStyles(shadow, sheet, cssText.toString());
-	}
-
-	/**
-	 * Forwards own attributes to sub-components and, for modal-enabled cards,
-	 * wires up click and keyboard interaction.
-	 */
-	connectedCallback(): void {
-		this.#syncSubComponents();
-		if (this.hasAttribute("modal")) {
-			this.#bindModalInteraction();
+		const content = this.querySelector(".card-body__content");
+		if (content) {
+			for (const el of bodyEls) content.appendChild(el);
 		}
+
+		this.#syncSubComponents();
+		if (this.hasAttribute("modal")) this.#bindModalInteraction();
 	}
 
 	/** Aborts modal interaction listeners when the element leaves the DOM. */
@@ -90,19 +96,16 @@ class HyperCard extends HTMLElement {
 	}
 
 	/**
-	 * Reads own observed attributes and sets them on the shadow DOM sub-components.
+	 * Reads own observed attributes and sets them on the light DOM sub-components.
 	 * Also forwards the `modal` attribute to `<card-header>` so the arrow indicator
-	 * becomes visible via `:host([modal]) .card-header__arrow { display: block }`.
+	 * becomes visible via `card-header[modal] .card-header__arrow { display: block }`.
 	 *
 	 * @remarks
 	 * Called from both {@link connectedCallback} and {@link attributeChangedCallback}
 	 * so sub-components always reflect the latest attribute state.
 	 */
 	#syncSubComponents(): void {
-		const root = this.shadowRoot;
-		if (!root) return;
-
-		const header = root.querySelector<HTMLElement>("card-header");
+		const header = this.querySelector<HTMLElement>("card-header");
 		if (header) {
 			header.setAttribute("card-id", this.getAttribute("card-id") ?? "");
 			if (this.hasAttribute("modal")) {
@@ -112,12 +115,12 @@ class HyperCard extends HTMLElement {
 			}
 		}
 
-		const body = root.querySelector<HTMLElement>("card-body");
+		const body = this.querySelector<HTMLElement>("card-body");
 		if (body) {
 			body.setAttribute("heading", this.getAttribute("heading") ?? "");
 		}
 
-		const footer = root.querySelector<HTMLElement>("card-footer");
+		const footer = this.querySelector<HTMLElement>("card-footer");
 		if (footer) {
 			footer.setAttribute("tags", this.getAttribute("tags") ?? "");
 			footer.setAttribute("year", this.getAttribute("year") ?? "");
@@ -129,6 +132,7 @@ class HyperCard extends HTMLElement {
 	 * listeners that dispatch `card:open` on `window`.
 	 */
 	#bindModalInteraction(): void {
+		if (this.#modalAc) return;
 		this.setAttribute("role", "button");
 		this.setAttribute("tabindex", "0");
 		this.#modalAc = new AbortController();

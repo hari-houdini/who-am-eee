@@ -64,7 +64,7 @@
 	pointer-events: none;
 	letter-spacing: -0.25rem;
 	color: var(--hyper-text-color);
-	background: url("/images/nebula.webp") repeat;
+	background: url("../../../public/images/nebula.webp") repeat;
 	background-position: 40% 50%;
 	background-clip: text;
 	-webkit-background-clip: text;

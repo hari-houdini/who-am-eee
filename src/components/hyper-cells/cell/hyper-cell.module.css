@@ -1,4 +1,4 @@
-:host {
+hyper-cell {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -15,16 +15,12 @@
 		background-color 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-:host(:hover) {
+hyper-cell:hover {
 	box-shadow: 0 0 30px var(--hyper-card-hover-shadow);
 	background: var(--hyper-card-bg-hover);
 }
 
-:host(:hover) .hyper-cell__label {
-	color: var(--accent);
-}
-
-:host(:hover)::before {
+hyper-cell:hover::before {
 	content: "";
 	width: 104%;
 	height: 102%;
@@ -42,7 +38,7 @@
 	animation: spin 2.5s linear infinite;
 }
 
-:host(:hover)::after {
+hyper-cell:hover::after {
 	content: "";
 	position: absolute;
 	top: calc(var(--card-height) / 6);
@@ -85,17 +81,18 @@
 	height: clamp(2rem, 4.5vw, 3.5rem);
 }
 
-::slotted([slot="hyper-cell-icon"]) {
+[slot="hyper-cell-icon"] {
 	width: clamp(1.5rem, 4vw, 3rem);
 	height: clamp(1.5rem, 4vw, 3rem);
 	display: block;
-  fill: var(--bg) !important;
-
-  path {
-    fill: var(--bg) !important;
-  }
+	fill: var(--bg);
 }
 
+[slot="hyper-cell-icon"] path {
+	fill: var(--bg);
+}
+
+/* Base label rule must come before the hover variant to satisfy specificity order. */
 .hyper-cell__label {
 	font-size: clamp(1rem, 2.5vw, 1.5rem);
 	line-height: 1.5;
@@ -104,6 +101,10 @@
 	font-weight: 700;
 	color: var(--hyper-heading-color);
 	mix-blend-mode: hard-light;
+}
+
+hyper-cell:hover .hyper-cell__label {
+	color: var(--accent);
 }
 
 @keyframes spin {

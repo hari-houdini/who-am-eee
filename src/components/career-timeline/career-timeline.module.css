@@ -1,4 +1,4 @@
-:host {
+career-timeline {
 	display: block;
 	color: #fff;
 	font-family: var(--font-display);
@@ -50,7 +50,7 @@
 			rgba(0, 0, 0, 0.5) 60%,
 			rgba(0, 0, 0, 0.85) 100%
 		),
-		url("/images/rmkcet.webp");
+		url("../../../public/images/rmkcet.webp");
 }
 
 .career-timeline__item--zoho {
@@ -61,7 +61,7 @@
 			rgba(0, 0, 0, 0.5) 60%,
 			rgba(0, 0, 0, 0.85) 100%
 		),
-		url("/images/zoho.webp");
+		url("../../../public/images/zoho.webp");
 }
 
 .career-timeline__item--wbs {
@@ -72,7 +72,7 @@
 			rgba(0, 0, 0, 0.5) 60%,
 			rgba(0, 0, 0, 0.85) 100%
 		),
-		url("/images/wbs.webp");
+		url("../../../public/images/wbs.webp");
 }
 
 .career-timeline__item--pt {
@@ -83,7 +83,7 @@
 			rgba(0, 0, 0, 0.5) 60%,
 			rgba(0, 0, 0, 0.85) 100%
 		),
-		url("/images/pt.webp");
+		url("../../../public/images/pt.webp");
 }
 
 /* ── When list is hovered: dim all panels ── */
@@ -172,7 +172,7 @@
 	margin-bottom: 0;
 }
 
-em {
+career-timeline em {
 	color: var(--accent);
 	font-style: italic;
 }

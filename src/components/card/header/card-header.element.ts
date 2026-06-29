@@ -1,13 +1,4 @@
-import { adoptStyles } from "../../../shared/utils/adopt-styles.utils";
-import cssText from "./card-header.module.css" with { type: "text" };
 import templateHtml from "./card-header.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<card-header>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<card-header>` — renders a card identifier and arrow indicator.
@@ -26,22 +17,20 @@ class CardHeader extends HTMLElement {
 
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
+	}
 
+	/** Hydrates template HTML into light DOM on first connection. */
+	connectedCallback(): void {
+		if (this.firstChild !== null) return;
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
-
-		adoptStyles(shadow, sheet, cssText.toString());
+		Array.from(doc.body.childNodes).forEach((n) => {
+			this.appendChild(n.cloneNode(true));
+		});
 	}
-
-	/** No-op: attribute-driven component, no DOM side-effects on connect. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners to detach. */
 	disconnectedCallback(): void {}
@@ -50,7 +39,7 @@ class CardHeader extends HTMLElement {
 	adoptedCallback(): void {}
 
 	/**
-	 * Syncs observed attribute changes to the shadow DOM.
+	 * Syncs observed attribute changes to the light DOM.
 	 *
 	 * @param name - The changed attribute name.
 	 * @param _oldValue - Previous attribute value (unused).
@@ -62,8 +51,7 @@ class CardHeader extends HTMLElement {
 		newValue: string | null,
 	): void {
 		if (name === "card-id") {
-			const idEl =
-				this.shadowRoot?.querySelector<HTMLElement>(".card-header__id");
+			const idEl = this.querySelector<HTMLElement>(".card-header__id");
 			if (idEl) idEl.textContent = newValue ?? "";
 		}
 	}

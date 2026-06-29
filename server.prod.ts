@@ -1,23 +1,11 @@
 import figlet from "figlet";
 
-/** Shared non-CSP security headers applied to every response. */
-const BASE_SECURITY_HEADERS: Record<string, string> = {
-	"X-Frame-Options": "DENY",
-	"X-Content-Type-Options": "nosniff",
-	"X-XSS-Protection": "1; mode=block",
-	"Referrer-Policy": "strict-origin-when-cross-origin",
-	"Permissions-Policy":
-		"camera=(), microphone=(), geolocation=(), payment=(), usb=(), " +
-		"accelerometer=(), gyroscope=(), magnetometer=()",
-	"Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-	"Cross-Origin-Opener-Policy": "same-origin",
-	"Cross-Origin-Embedder-Policy": "require-corp",
-	"Cross-Origin-Resource-Policy": "same-site",
-};
-
 /**
- * HTTP security headers for non-HTML asset responses (JS, CSS, fonts, images).
- * No nonce needed — assets contain no inline `<style>` elements.
+ * HTTP security headers applied to every response.
+ *
+ * Shadow DOM removal eliminates all inline `<style>` elements from web
+ * components, so no CSP nonce is needed — `style-src 'self'` alone is
+ * sufficient and correct.
  *
  * @remarks
  * Duplicated from `index.ts` to keep `server.prod.ts` self-contained.
@@ -38,50 +26,18 @@ const SECURITY_HEADERS: Record<string, string> = {
 		"form-action 'self'; " +
 		"frame-ancestors 'none'; " +
 		"upgrade-insecure-requests",
-	...BASE_SECURITY_HEADERS,
+	"X-Frame-Options": "DENY",
+	"X-Content-Type-Options": "nosniff",
+	"X-XSS-Protection": "1; mode=block",
+	"Referrer-Policy": "strict-origin-when-cross-origin",
+	"Permissions-Policy":
+		"camera=(), microphone=(), geolocation=(), payment=(), usb=(), " +
+		"accelerometer=(), gyroscope=(), magnetometer=()",
+	"Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+	"Cross-Origin-Opener-Policy": "same-origin",
+	"Cross-Origin-Embedder-Policy": "require-corp",
+	"Cross-Origin-Resource-Policy": "same-site",
 };
-
-/**
- * Generates a cryptographically random base64 nonce for CSP.
- *
- * @returns 16-byte base64 string suitable for a `'nonce-…'` CSP source expression.
- */
-function generateNonce(): string {
-	const bytes = new Uint8Array(16);
-	crypto.getRandomValues(bytes);
-	return btoa(String.fromCharCode(...bytes));
-}
-
-/**
- * Builds security headers for HTML responses, including a per-request CSP nonce.
- *
- * The nonce allows `<style>` elements stamped with the matching `nonce` attribute
- * (used by the Safari ≤ 16.3 `adoptedStyleSheets` fallback in web components)
- * while keeping `style-src 'self'` strict for all other inline styles.
- *
- * @param nonce - Base64 nonce string from {@link generateNonce}.
- * @returns Complete security header map for an HTML response.
- */
-function buildHtmlHeaders(nonce: string): Record<string, string> {
-	return {
-		"Content-Security-Policy":
-			"default-src 'self'; " +
-			"script-src 'self'; " +
-			`style-src 'self' 'nonce-${nonce}'; ` +
-			"font-src 'self' data:; " +
-			"img-src 'self' data: blob:; " +
-			"connect-src 'self'; " +
-			"media-src 'none'; " +
-			"object-src 'none'; " +
-			"frame-src 'none'; " +
-			"worker-src 'self'; " +
-			"base-uri 'self'; " +
-			"form-action 'self'; " +
-			"frame-ancestors 'none'; " +
-			"upgrade-insecure-requests",
-		...BASE_SECURITY_HEADERS,
-	};
-}
 
 /** Path to the pre-built output directory created by `bun run build:prod`. */
 const DIST = "./dist";
@@ -185,58 +141,30 @@ const server = Bun.serve({
 		);
 
 		const file = Bun.file(filePath);
-		const isHtml = contentType.includes("text/html");
 		const isRoot = url.pathname === "/" || url.pathname === "/index.html";
 
 		if (!(await file.exists())) {
 			// Unknown path — serve index.html so client-side routing can take over.
-			// Always read the HTML as text so we can inject the nonce.
-			const [fallback] = await resolveDistFile("/", "");
-			const nonce = generateNonce();
-			const htmlText = await Bun.file(fallback).text();
-			const injected = htmlText.replace(
-				"</head>",
-				`<meta name="csp-nonce" content="${nonce}"></head>`,
-			);
-			return new Response(injected, {
-				headers: {
-					...buildHtmlHeaders(nonce),
-					"Cache-Control": "no-cache",
-					"Content-Type": "text/html;charset=utf-8",
-				},
-			});
-		}
-
-		if (isHtml) {
-			// Build the uncompressed base path directly — the nonce injection
-			// requires plain text, so we never serve a compressed sidecar for HTML.
-			const basePath =
-				url.pathname === "/" ? `${DIST}/index.html` : `${DIST}${url.pathname}`;
-			const nonce = generateNonce();
-			const htmlText = await Bun.file(basePath).text();
-			const injected = htmlText.replace(
-				"</head>",
-				`<meta name="csp-nonce" content="${nonce}"></head>`,
-			);
-			const htmlHeaders: Record<string, string> = {
-				...buildHtmlHeaders(nonce),
-				"Cache-Control": cacheControl(url.pathname),
-				"Content-Type": "text/html;charset=utf-8",
+			const [fallback, fallbackEncoding, fallbackType] =
+				await resolveDistFile("/", accept);
+			const headers: Record<string, string> = {
+				...SECURITY_HEADERS,
+				"Cache-Control": "no-cache",
+				"Content-Type": fallbackType,
+				Vary: "Accept-Encoding",
 			};
-			if (isRoot) htmlHeaders.Link = ROOT_LINK_HEADER;
-			return new Response(injected, { headers: htmlHeaders });
+			if (fallbackEncoding !== null) headers["Content-Encoding"] = fallbackEncoding;
+			return new Response(Bun.file(fallback), { headers });
 		}
 
-		// Non-HTML assets: serve file directly, with compression sidecar if available.
 		const headers: Record<string, string> = {
 			...SECURITY_HEADERS,
 			"Cache-Control": cacheControl(url.pathname),
 			"Content-Type": contentType,
 			Vary: "Accept-Encoding",
 		};
-		if (encoding !== null) {
-			headers["Content-Encoding"] = encoding;
-		}
+		if (isRoot) headers.Link = ROOT_LINK_HEADER;
+		if (encoding !== null) headers["Content-Encoding"] = encoding;
 		return new Response(file, { headers });
 	},
 });

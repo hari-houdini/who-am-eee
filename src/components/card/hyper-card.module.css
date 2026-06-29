@@ -1,18 +1,18 @@
-:host {
+hyper-card {
 	display: block;
 	transform: translate(-50%, -50%);
 	width: clamp(200px, 75vw, 320px);
 }
 
-:host([size="s"]) {
+hyper-card[size="s"] {
 	width: clamp(200px, 60vw, 360px);
 }
 
-:host([size="m"]) {
+hyper-card[size="m"] {
 	width: clamp(260px, 75vw, 576px);
 }
 
-:host([size="l"]) {
+hyper-card[size="l"] {
 	width: clamp(300px, 85vw, 720px);
 }
 
@@ -29,9 +29,9 @@
 		0 0 0 1px var(--hyper-card-shadow),
 		0 20px 50px var(--hyper-card-shadow);
 
-  .hyper-card__body {
-    overflow: visible;
-  }
+	.hyper-card__body {
+		overflow: visible;
+	}
 }
 
 @media (hover: hover) {
@@ -74,11 +74,11 @@
 	border-color: var(--accent);
 }
 
-:host([modal]) .hyper-card {
+hyper-card[modal] .hyper-card {
 	cursor: pointer;
 }
 
-:host([modal]:focus-visible) {
+hyper-card[modal]:focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 4px;
 }

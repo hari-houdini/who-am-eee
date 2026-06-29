@@ -1,24 +1,13 @@
-import { adoptStyles } from "../../../shared/utils/adopt-styles.utils";
-import cssText from "./hyper-cell.module.css" with { type: "text" };
 import templateHtml from "./hyper-cell.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<hyper-cell>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<hyper-cell>` — an individual technology or methodology item in the capabilities grid.
  *
  * Accepts an `href` attribute that is forwarded to the inner anchor element.
- * Consumers supply icon and label content via named slots:
- * - `hyper-cell-icon` — typically an `<svg>` icon.
- * - `hyper-cell-label` — typically a `<span>` with the technology name.
- *
- * Shadow DOM is attached in the constructor so `attributeChangedCallback` fires
- * correctly when the element is upgraded (before `connectedCallback`).
+ * Consumers supply icon and label content with `slot="hyper-cell-icon"` and
+ * `slot="hyper-cell-label"` attributes. These slotted children are collected
+ * before hydration and moved into `.hyper-cell__icon` and `.hyper-cell__label`
+ * after the template is appended to light DOM.
  *
  * @customElement hyper-cell
  */
@@ -30,22 +19,43 @@ class HyperCell extends HTMLElement {
 
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
+	}
+
+	/**
+	 * Hydrates template on first connect. Collects slot children before hydration
+	 * and moves them into the correct spans after the template is in light DOM.
+	 * Applies the `href` attribute to the inner anchor after hydration.
+	 */
+	connectedCallback(): void {
+		if (this.querySelector(".hyper-cell__link") !== null) {
+			// Already hydrated (re-connection). Ensure href is up-to-date.
+			const link = this.querySelector<HTMLAnchorElement>(".hyper-cell__link");
+			if (link) link.href = this.getAttribute("href") ?? "";
+			return;
+		}
+
+		const iconEl = this.querySelector<Element>('[slot="hyper-cell-icon"]');
+		const labelEl = this.querySelector<Element>('[slot="hyper-cell-label"]');
+		if (iconEl) iconEl.remove();
+		if (labelEl) labelEl.remove();
 
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
+		Array.from(doc.body.childNodes).forEach((n) => {
+			this.appendChild(n.cloneNode(true));
+		});
 
-		adoptStyles(shadow, sheet, cssText.toString());
+		const link = this.querySelector<HTMLAnchorElement>(".hyper-cell__link");
+		if (link) link.href = this.getAttribute("href") ?? "";
+
+		const iconSpan = this.querySelector(".hyper-cell__icon");
+		const labelSpan = this.querySelector(".hyper-cell__label");
+		if (iconSpan && iconEl) iconSpan.appendChild(iconEl);
+		if (labelSpan && labelEl) labelSpan.appendChild(labelEl);
 	}
-
-	/** No-op: href is set via attribute before or at connect time. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners to detach. */
 	disconnectedCallback(): void {}
@@ -54,7 +64,7 @@ class HyperCell extends HTMLElement {
 	adoptedCallback(): void {}
 
 	/**
-	 * Forwards the `href` attribute to the inner `<a>` element in shadow DOM.
+	 * Forwards the `href` attribute to the inner `<a>` element in light DOM.
 	 *
 	 * @param name - The changed attribute name.
 	 * @param _oldValue - Previous value (unused).
@@ -66,8 +76,7 @@ class HyperCell extends HTMLElement {
 		newValue: string | null,
 	): void {
 		if (name === "href") {
-			const link =
-				this.shadowRoot?.querySelector<HTMLAnchorElement>(".hyper-cell__link");
+			const link = this.querySelector<HTMLAnchorElement>(".hyper-cell__link");
 			if (link) link.href = newValue ?? "";
 		}
 	}

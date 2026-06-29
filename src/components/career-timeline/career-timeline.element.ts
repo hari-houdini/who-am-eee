@@ -1,15 +1,6 @@
-import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
-import cssText from "./career-timeline.module.css" with { type: "text" };
 import templateHtml from "./career-timeline.template.html" with {
 	type: "text",
 };
-
-/** Parsed CSS stylesheet shared across all `<career-timeline>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<career-timeline>` — vertical accordion career and education history component.
@@ -33,29 +24,26 @@ class CareerTimeline extends HTMLElement {
 
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
-
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(
-			templateHtml as unknown as string,
-			"text/html",
-		);
-		Array.from(doc.body.childNodes).forEach((n) => {
-			shadow.appendChild(n.cloneNode(true));
-		});
-
-		adoptStyles(shadow, sheet, cssText.toString());
 	}
 
-	/** Attaches hover/focus listeners that toggle `aria-hidden` on each panel's content region. */
+	/** Hydrates template on first connect, then attaches hover/focus listeners. */
 	connectedCallback(): void {
+		if (this.firstChild === null) {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(
+				templateHtml as unknown as string,
+				"text/html",
+			);
+			Array.from(doc.body.childNodes).forEach((n) => {
+				this.appendChild(n.cloneNode(true));
+			});
+		}
+
 		this.#ac = new AbortController();
 		const { signal } = this.#ac;
 
 		const items = Array.from(
-			this.shadowRoot?.querySelectorAll<HTMLElement>(
-				".career-timeline__item",
-			) ?? [],
+			this.querySelectorAll<HTMLElement>(".career-timeline__item"),
 		);
 
 		items.forEach((item) => {
