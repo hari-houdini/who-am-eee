@@ -84,13 +84,33 @@ async function servePublicFile(req: Request): Promise<Response> {
 		...SECURITY_HEADERS,
 		// Fonts and images never change path between deploys — safe to cache forever.
 		"Cache-Control": "public, max-age=31536000, immutable",
-		"Vary": "Accept-Encoding",
+		Vary: "Accept-Encoding",
 	};
 	if (encoding !== null) {
 		headers["Content-Encoding"] = encoding;
 	}
 
 	return new Response(file, { headers });
+}
+
+/**
+ * Serves favicon assets from the root-level `./favicon/` directory.
+ * Kept separate from {@link servePublicFile} because Bun's HTML bundler
+ * resolves root-relative `/favicon/...` hrefs from the project root, not
+ * from `./public/`, so the files must live at `<root>/favicon/`.
+ *
+ * @param req - Incoming request whose pathname maps to a file under `./favicon/`.
+ * @returns File response, or 404 if the file does not exist.
+ */
+async function serveFaviconFile(req: Request): Promise<Response> {
+	const url = new URL(req.url);
+	const file = Bun.file(`.${url.pathname}`);
+	if (!(await file.exists())) {
+		return new Response("Not found", { status: 404, headers: SECURITY_HEADERS });
+	}
+	return new Response(file, {
+		headers: { ...SECURITY_HEADERS, "Cache-Control": "public, max-age=31536000, immutable" },
+	});
 }
 
 /**
@@ -101,6 +121,7 @@ const server = Bun.serve({
 	port: 3000,
 	routes: {
 		"/": index,
+		"/favicon/*": serveFaviconFile,
 		"/fonts/*": servePublicFile,
 		"/vendor/*": servePublicFile,
 		"/images/*": servePublicFile,

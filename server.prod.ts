@@ -158,9 +158,6 @@ const server = Bun.serve({
 	port: Bun.env.PORT ? Number(Bun.env.PORT) : 3000,
 
 	routes: {
-		"/favicon.ico": {
-			GET: () => new Response(null, { status: 204, headers: SECURITY_HEADERS }),
-		},
 		"/figlet": {
 			GET: async (req) => {
 				const query = new URLSearchParams(req.url.split("?")[1]);
