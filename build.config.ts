@@ -1,6 +1,6 @@
 // import { htmlReplacePlugin } from "plugins/html-placeholder-replace.plugin";
 // import { propertiesLoaderPlugin } from "plugins/properties-loader.plugin";
-import { cssMinifyPlugin } from 'plugins/css-minify.plugin';
+// import { cssMinifyPlugin } from 'plugins/css-minify.plugin'; // removed — CSS is now linked, not embedded
 
 /**
  * Production build script. Bundles all entry points into `dist/` via Bun's
@@ -41,7 +41,6 @@ const result = await Bun.build({
   },
 
   plugins: [
-    cssMinifyPlugin,
     // propertiesLoaderPlugin,  // re-enable with i18n plan
     // htmlReplacePlugin,       // re-enable with i18n plan
   ],

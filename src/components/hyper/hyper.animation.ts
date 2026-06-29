@@ -9,20 +9,18 @@ import { INITIAL_SPACE_STATE, SPACE_CONFIG } from "./hyper.const";
  * value, registers scroll and mouse listeners that update shared state, then
  * delegates the per-frame rendering to {@link rafLoop}.
  *
- * @param context - The `<hyper-space>` custom element. Its Shadow DOM must
- *   already be attached; the scene items are declared in `hyper.template.html`.
+ * @param context - The `<hyper-space>` custom element. The template HTML must
+ *   already be hydrated into its light DOM (done in `connectedCallback`).
  * @returns Cleanup function to call from `disconnectedCallback`.
  */
 function loadHyperSpaceAnimation(context: HTMLElement): () => void {
-	if (!context.shadowRoot) return () => {};
-
 	const state = { ...INITIAL_SPACE_STATE };
 
-	if (!context.shadowRoot.getElementById("world")) return () => {};
+	if (!context.querySelector("#world")) return () => {};
 
 	// Compute the max scroll from the deepest item's z so the camera stops
 	// just as the last item is comfortably visible (vizZ ≈ -200).
-	const allAnimEls = context.shadowRoot.querySelectorAll<HTMLElement>(
+	const allAnimEls = context.querySelectorAll<HTMLElement>(
 		"[data-anim-element]",
 	);
 	let lastItemZ = 0;
@@ -48,7 +46,7 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
 	};
 	window.addEventListener("mousemove", onMouseMove);
 
-	const cancelRaf = rafLoop(lerp, state, context.shadowRoot);
+	const cancelRaf = rafLoop(lerp, state, context);
 
 	const onModalOpen = (): void => {
 		lerp.stop();
@@ -85,26 +83,30 @@ function loadHyperSpaceAnimation(context: HTMLElement): () => void {
  *    via CSSOM {@link CSSStyleRule} updates. Scroll is clamped externally by
  *    {@link LerpScroll} so items do not loop — the scene has a defined end.
  *
- * Visual mutations go through a programmatically-created {@link CSSStyleSheet}
- * adopted into the shadow root. `CSSStyleRule.style.*` writes modify an existing
- * stylesheet rule — NOT the element's inline style attribute — so this loop is
- * fully safe under `style-src 'self'` CSP with no `unsafe-*` keywords required.
- * This also eliminates the `animation.effect` null-access crash on Safari.
+ * Visual mutations use `document.adoptedStyleSheets` (Chrome 73+, Firefox 101+,
+ * Safari 16.4+). On Safari < 16.4 where `document.adoptedStyleSheets` is
+ * `undefined`, the fallback uses direct `element.style.*` CSSOM writes.
+ * Both paths are fully safe under `style-src 'self'` CSP — JavaScript CSSOM API
+ * writes are not covered by `style-src` (only HTML-parsed `style=""` attributes are).
  *
  * @param lerp - The {@link LerpScroll} instance providing the scroll clock.
  * @param state - Mutable scene state mutated by scroll and mouse listeners.
- * @param root - Shadow root of the `<hyper-space>` element.
+ * @param root - The `<hyper-space>` element containing the scene items.
  * @returns Cleanup function that cancels the RAF loop and removes the animation stylesheet.
  */
 function rafLoop(
 	lerp: LerpScroll,
 	state: typeof INITIAL_SPACE_STATE,
-	root: ShadowRoot,
+	root: Element,
 ): () => void {
-	const world = root.getElementById("world");
-	const viewport = root.getElementById("viewport");
+	const worldMaybe = root.querySelector<HTMLElement>("#world");
+	const viewportMaybe = root.querySelector<HTMLElement>("#viewport");
 
-	if (!world || !viewport) return () => {};
+	if (!worldMaybe || !viewportMaybe) return () => {};
+
+	// Bind to definitely-typed names so the raf closure captures non-null HTMLElement.
+	const world: HTMLElement = worldMaybe;
+	const viewport: HTMLElement = viewportMaybe;
 
 	const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -161,77 +163,74 @@ function rafLoop(
 		};
 	});
 
-	// Build a per-element CSSStyleSheet inside the shadow root.
-	// CSSStyleRule.style.* writes modify an existing stylesheet rule — NOT the
-	// element's inline style attribute — so they are safe under style-src 'self'.
+	// Prefer document.adoptedStyleSheets (Chrome 73+, FF 101+, Safari 16.4+).
+	// CSSStyleRule.style.* writes are safe under style-src 'self' — they modify
+	// an existing stylesheet rule, not the element's inline style attribute.
 	//
-	// adoptedStyleSheets is undefined on Safari < 16.4; fall back to a <style>
-	// element whose .sheet property gives an equivalent mutable CSSStyleSheet.
-	let animSheet: CSSStyleSheet;
+	// On Safari < 16.4 where document.adoptedStyleSheets is undefined, fall back
+	// to direct element.style.* writes. JavaScript CSSOM API writes are never
+	// covered by the CSP style-src directive — only HTML style="" attribute parsing is.
+	const animSheet =
+		document.adoptedStyleSheets !== undefined ? new CSSStyleSheet() : null;
+
+	/** Cleanup to remove the animation stylesheet from document.adoptedStyleSheets. */
 	let cleanupSheet: () => void;
 
-	if (root.adoptedStyleSheets !== undefined) {
-		const sheet = new CSSStyleSheet();
-		root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
-		animSheet = sheet;
+	if (animSheet !== null) {
+		document.adoptedStyleSheets = [...document.adoptedStyleSheets, animSheet];
 		cleanupSheet = (): void => {
-			root.adoptedStyleSheets = root.adoptedStyleSheets.filter(
-				(s) => s !== sheet,
+			document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
+				(s) => s !== animSheet,
 			);
 		};
 	} else {
-		// Safari < 16.4: create a nonce-bearing <style> element and use its .sheet.
-		const nonce =
-			document.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')
-				?.content ?? "";
-		const styleEl = document.createElement("style");
-		if (nonce) styleEl.setAttribute("nonce", nonce);
-		root.appendChild(styleEl);
-		const sheet = styleEl.sheet;
-		if (!sheet) return () => {};
-		animSheet = sheet;
-		cleanupSheet = (): void => {
-			styleEl.remove();
-		};
+		cleanupSheet = (): void => {};
 	}
-
-	// Insert rules in sequential index order:
-	// 0 = #world, 1 = #viewport, 2…N-1 = scene items, N… = title elements.
-	animSheet.insertRule("#world { }", 0);
-	animSheet.insertRule("#viewport { }", 1);
-
-	items.forEach((item, i) => {
-		item.el.dataset.si = String(i);
-		animSheet.insertRule(`[data-si="${i}"] { }`, animSheet.cssRules.length);
-	});
 
 	/**
 	 * Maps item array index → pre-cached {@link CSSStyleRule} for title elements.
-	 * Avoids per-frame `cssRules.item()` lookups for text-item parallax updates.
+	 * Only populated when `animSheet !== null`.
 	 */
 	const titleStyleRuleMap = new Map<number, CSSStyleRule>();
-	items.forEach((item, i) => {
-		if (!item.titleEl) return;
-		item.titleEl.dataset.sti = String(i);
-		const ruleIdx = animSheet.cssRules.length;
-		animSheet.insertRule(`[data-sti="${i}"] { }`, ruleIdx);
-		const raw = animSheet.cssRules.item(ruleIdx);
-		if (raw) titleStyleRuleMap.set(i, raw as CSSStyleRule);
-	});
 
-	// Cache CSSStyleRule references for O(1) per-frame access.
-	// item() returns CSSRule | null (avoids the noUncheckedIndexedAccess concern on indexers).
-	// Rules were just inserted so these indices are guaranteed valid — guard is belt-and-suspenders.
-	const worldRuleRaw = animSheet.cssRules.item(0);
-	const viewportRuleRaw = animSheet.cssRules.item(1);
-	if (!worldRuleRaw || !viewportRuleRaw) return () => {};
-	const worldRule = worldRuleRaw as CSSStyleRule;
-	const viewportRule = viewportRuleRaw as CSSStyleRule;
-	/** Parallel array of CSSStyleRules for scene items, indexed by item position. */
-	const itemStyleRules: Array<CSSStyleRule | null> = items.map((_, i) => {
-		const rule = animSheet.cssRules.item(2 + i);
-		return rule !== null ? (rule as CSSStyleRule) : null;
-	});
+	/** Parallel array of CSSStyleRules for scene items. `null` entries when `animSheet` is null. */
+	const itemStyleRules: Array<CSSStyleRule | null> = items.map(() => null);
+
+	/** CSSStyleRule for the world container. `null` when `animSheet` is null. */
+	let worldRule: CSSStyleRule | null = null;
+	/** CSSStyleRule for the viewport element. `null` when `animSheet` is null. */
+	let viewportRule: CSSStyleRule | null = null;
+
+	if (animSheet !== null) {
+		// Insert rules in sequential index order:
+		// 0 = #world, 1 = #viewport, 2…N-1 = scene items, N… = title elements.
+		animSheet.insertRule("#world { }", 0);
+		animSheet.insertRule("#viewport { }", 1);
+
+		items.forEach((item, i) => {
+			item.el.dataset.si = String(i);
+			animSheet.insertRule(`[data-si="${i}"] { }`, animSheet.cssRules.length);
+		});
+
+		items.forEach((item, i) => {
+			if (!item.titleEl) return;
+			item.titleEl.dataset.sti = String(i);
+			const ruleIdx = animSheet.cssRules.length;
+			animSheet.insertRule(`[data-sti="${i}"] { }`, ruleIdx);
+			const raw = animSheet.cssRules.item(ruleIdx);
+			if (raw) titleStyleRuleMap.set(i, raw as CSSStyleRule);
+		});
+
+		const worldRuleRaw = animSheet.cssRules.item(0);
+		const viewportRuleRaw = animSheet.cssRules.item(1);
+		if (worldRuleRaw) worldRule = worldRuleRaw as CSSStyleRule;
+		if (viewportRuleRaw) viewportRule = viewportRuleRaw as CSSStyleRule;
+
+		items.forEach((_, i) => {
+			const rule = animSheet.cssRules.item(2 + i);
+			itemStyleRules[i] = rule !== null ? (rule as CSSStyleRule) : null;
+		});
+	}
 
 	/** Last perspective (FOV) value written; avoids a rule update every frame when velocity is stable. */
 	let lastFov = -1;
@@ -249,12 +248,22 @@ function rafLoop(
 		if (!reduceMotion.matches) {
 			const tiltX = state.mouseY * 5 - state.velocity * 0.5;
 			const tiltY = state.mouseX * 5;
-			worldRule.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+			const tilt = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+			if (worldRule !== null) {
+				worldRule.style.transform = tilt;
+			} else {
+				world.style.transform = tilt;
+			}
 
 			const baseFov = 1000;
 			const fov = baseFov - Math.min(Math.abs(state.velocity) * 10, 600);
 			if (Math.abs(fov - lastFov) > 0.5) {
-				viewportRule.style.perspective = `${fov}px`;
+				const fovPx = `${fov}px`;
+				if (viewportRule !== null) {
+					viewportRule.style.perspective = fovPx;
+				} else {
+					viewport.style.perspective = fovPx;
+				}
 				lastFov = fov;
 			}
 		}
@@ -288,8 +297,7 @@ function rafLoop(
 			}
 
 			let trans = `${item.txPrefix}${vizZ}px)`;
-
-			const itemRule = itemStyleRules[i];
+			const itemRule = itemStyleRules[i] ?? null;
 
 			switch (item.type) {
 				case "text": {
@@ -298,16 +306,19 @@ function rafLoop(
 					if (!reduceMotion.matches && item.titleEl) {
 						const transX = (-state.mouseX / (state.mouseX + 50)) * 100;
 						const transY = (-state.mouseY / (state.mouseY + 50)) * 100;
-
+						const bp = `${transX}% ${transY}%`;
 						const shadow =
 							Math.abs(state.velocity) > 1
 								? `${state.velocity * 2}px 0 red, ${-state.velocity * 2}px 0 cyan`
 								: "none";
 
 						const titleRule = titleStyleRuleMap.get(i);
-						if (titleRule) {
-							titleRule.style.backgroundPosition = `${transX}% ${transY}%`;
+						if (titleRule !== undefined) {
+							titleRule.style.backgroundPosition = bp;
 							titleRule.style.textShadow = shadow;
+						} else {
+							item.titleEl.style.backgroundPosition = bp;
+							item.titleEl.style.textShadow = shadow;
 						}
 					}
 					break;
@@ -324,9 +335,12 @@ function rafLoop(
 				}
 			}
 
-			if (itemRule) {
+			if (itemRule !== null) {
 				itemRule.style.transform = trans;
 				itemRule.style.opacity = String(alpha);
+			} else {
+				item.el.style.transform = trans;
+				item.el.style.opacity = String(alpha);
 			}
 		});
 	}

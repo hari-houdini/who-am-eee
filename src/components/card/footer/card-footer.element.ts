@@ -1,13 +1,4 @@
-import { adoptStyles } from "../../../shared/utils/adopt-styles.utils";
-import cssText from "./card-footer.module.css" with { type: "text" };
 import templateHtml from "./card-footer.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<card-footer>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<card-footer>` — renders the tags and year fields at the base of a card.
@@ -25,22 +16,20 @@ class CardFooter extends HTMLElement {
 
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
+	}
 
+	/** Hydrates template HTML into light DOM on first connection. */
+	connectedCallback(): void {
+		if (this.firstChild !== null) return;
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
-
-		adoptStyles(shadow, sheet, cssText.toString());
+		Array.from(doc.body.childNodes).forEach((n) => {
+			this.appendChild(n.cloneNode(true));
+		});
 	}
-
-	/** No-op: attribute-driven component, no DOM side-effects on connect. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners to detach. */
 	disconnectedCallback(): void {}
@@ -49,7 +38,7 @@ class CardFooter extends HTMLElement {
 	adoptedCallback(): void {}
 
 	/**
-	 * Syncs observed attribute changes to the shadow DOM.
+	 * Syncs observed attribute changes to the light DOM.
 	 *
 	 * @param name - The changed attribute name (`'tags'` or `'year'`).
 	 * @param _oldValue - Previous attribute value (unused).
@@ -61,12 +50,10 @@ class CardFooter extends HTMLElement {
 		newValue: string | null,
 	): void {
 		if (name === "tags") {
-			const tagsEl =
-				this.shadowRoot?.querySelector<HTMLElement>(".card-footer__tags");
+			const tagsEl = this.querySelector<HTMLElement>(".card-footer__tags");
 			if (tagsEl) tagsEl.textContent = newValue ?? "";
 		} else if (name === "year") {
-			const yearEl =
-				this.shadowRoot?.querySelector<HTMLElement>(".card-footer__year");
+			const yearEl = this.querySelector<HTMLElement>(".card-footer__year");
 			if (yearEl) yearEl.textContent = newValue ?? "";
 		}
 	}

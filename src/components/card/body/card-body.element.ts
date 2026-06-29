@@ -1,20 +1,11 @@
-import { adoptStyles } from "../../../shared/utils/adopt-styles.utils";
-import cssText from "./card-body.module.css" with { type: "text" };
 import templateHtml from "./card-body.template.html" with { type: "text" };
 
-/** Parsed CSS stylesheet shared across all `<card-body>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
-
 /**
- * `<card-body>` — renders a card heading and a named slot for body content.
+ * `<card-body>` — renders a card heading and a content area.
  *
  * Observed attribute `heading` populates the `.card-body__heading` element.
- * The `body-content` named slot accepts consumer-supplied content (e.g.
- * `<about-me>` or `<hyper-cells>`).
+ * Body content is placed into `.card-body__content` by the parent `<hyper-card>`
+ * immediately after this element connects.
  *
  * @customElement card-body
  */
@@ -26,22 +17,20 @@ class CardBody extends HTMLElement {
 
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
+	}
 
+	/** Hydrates template HTML into light DOM on first connection. */
+	connectedCallback(): void {
+		if (this.firstChild !== null) return;
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
-
-		adoptStyles(shadow, sheet, cssText.toString());
+		Array.from(doc.body.childNodes).forEach((n) => {
+			this.appendChild(n.cloneNode(true));
+		});
 	}
-
-	/** No-op: attribute-driven component, no DOM side-effects on connect. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners to detach. */
 	disconnectedCallback(): void {}
@@ -50,7 +39,7 @@ class CardBody extends HTMLElement {
 	adoptedCallback(): void {}
 
 	/**
-	 * Syncs observed attribute changes to the shadow DOM.
+	 * Syncs observed attribute changes to the light DOM.
 	 *
 	 * @param name - The changed attribute name.
 	 * @param _oldValue - Previous attribute value (unused).
@@ -62,9 +51,7 @@ class CardBody extends HTMLElement {
 		newValue: string | null,
 	): void {
 		if (name === "heading") {
-			const headingEl = this.shadowRoot?.querySelector<HTMLElement>(
-				".card-body__heading",
-			);
+			const headingEl = this.querySelector<HTMLElement>(".card-body__heading");
 			if (headingEl) {
 				headingEl.textContent = newValue ?? "";
 			}

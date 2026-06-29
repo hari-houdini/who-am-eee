@@ -1,42 +1,42 @@
-import { adoptStyles } from "../../shared/utils/adopt-styles.utils";
-import cssText from "./hyper-cells.module.css" with { type: "text" };
 import templateHtml from "./hyper-cells.template.html" with { type: "text" };
-
-/** Parsed CSS stylesheet shared across all `<hyper-cells>` instances. */
-const sheet: CSSStyleSheet = (() => {
-	const s = new CSSStyleSheet();
-	s.replaceSync(cssText.toString());
-	return s;
-})();
 
 /**
  * `<hyper-cells>` — a flex-wrap grid container for `<hyper-cell>` items.
  *
- * Uses a default slot to accept any number of `<hyper-cell>` children.
- * Provides the list semantics (`<ul role="list">`) and grid layout;
- * individual items are styled by `<hyper-cell>` itself.
+ * Children present before connect are collected, the template is hydrated into
+ * light DOM, and the children are re-appended into the inner `<ul>`.
  *
  * @customElement hyper-cells
  */
 class HyperCells extends HTMLElement {
 	constructor() {
 		super();
-		const shadow = this.attachShadow({ mode: "open" });
+	}
+
+	/**
+	 * Hydrates template on first connect; moves pre-existing children into the
+	 * inner `<ul class="hyper-cells">`.
+	 */
+	connectedCallback(): void {
+		if (this.querySelector(".hyper-cells") !== null) return;
+
+		const children = Array.from(this.children);
+		for (const el of children) el.remove();
 
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(
 			templateHtml as unknown as string,
 			"text/html",
 		);
-		Array.from(doc.body.childNodes).map((n) =>
-			shadow.appendChild(n.cloneNode(true)),
-		);
+		Array.from(doc.body.childNodes).forEach((n) => {
+			this.appendChild(n.cloneNode(true));
+		});
 
-		adoptStyles(shadow, sheet, cssText.toString());
+		const list = this.querySelector(".hyper-cells");
+		if (list) {
+			for (const el of children) list.appendChild(el);
+		}
 	}
-
-	/** No-op: purely structural container with no dynamic behaviour. */
-	connectedCallback(): void {}
 
 	/** No-op: no listeners to detach. */
 	disconnectedCallback(): void {}

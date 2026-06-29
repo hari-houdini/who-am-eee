@@ -1,4 +1,4 @@
-:host {
+card-header {
 	display: block;
 }
 
@@ -23,6 +23,6 @@
 	display: none;
 }
 
-:host([modal]) .card-header__arrow {
+card-header[modal] .card-header__arrow {
 	display: block;
 }
