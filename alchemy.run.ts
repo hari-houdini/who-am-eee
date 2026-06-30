@@ -21,10 +21,7 @@ export default Alchemy.Stack(
 	},
 	Effect.gen(function* () {
 		const site = yield* Cloudflare.StaticSite("Portfolio", {
-			command:
-				"bun run build:prod && " +
-				"find dist -name '*.br' -delete && " +
-				"find dist -name '*.gz' -delete",
+			command: "bun run build:prod",
 			outdir: "dist",
 			main: "./src/cf-worker.ts",
 			domain: ["harihoudini.dev", "www.harihoudini.dev"],
