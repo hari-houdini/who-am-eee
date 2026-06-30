@@ -112,6 +112,14 @@ class ProjectTabs extends HTMLElement {
 	#ac: AbortController | undefined;
 
 	/**
+	 * Per-instance `CSSStyleRule` used to set the indicator `transform` via
+	 * stylesheet mutation rather than an element inline style.
+	 * `CSSStyleRule.style.transform = …` is CSP-safe under `style-src 'self'`.
+	 * `null` on Safari ≤ 16.3 where `adoptedStyleSheets` is unavailable.
+	 */
+	#indicatorRule: CSSStyleRule | null = null;
+
+	/**
 	 * Per-instance suffix appended to ARIA id attributes to prevent collisions
 	 * when multiple `<project-tabs>` elements coexist on the same page.
 	 */
@@ -136,6 +144,15 @@ class ProjectTabs extends HTMLElement {
 		});
 
 		adoptStyles(shadow, sheet, cssText.toString());
+
+		// Per-instance dynamic rule for the indicator transform.
+		// Mirrors the adoptStyles guard — CSSStyleSheet constructor requires Safari 16.4+.
+		if (shadow.adoptedStyleSheets !== undefined) {
+			const instanceSheet = new CSSStyleSheet();
+			const idx = instanceSheet.insertRule(".project-tabs__indicator { }", 0);
+			this.#indicatorRule = instanceSheet.cssRules[idx] as CSSStyleRule;
+			shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, instanceSheet];
+		}
 
 		this.#tabList = shadow.querySelector(".project-tabs__list");
 		this.#indicator = shadow.querySelector(".project-tabs__indicator");
@@ -270,10 +287,10 @@ class ProjectTabs extends HTMLElement {
 			RING_CIRCUMFERENCE - (progress / 100) * RING_CIRCUMFERENCE;
 
 		if (reducedMotion) {
-			arc.style.strokeDashoffset = String(finalOffset);
+			arc.setAttribute("stroke-dashoffset", String(finalOffset));
 		} else {
 			requestAnimationFrame(() => {
-				arc.style.strokeDashoffset = String(finalOffset);
+				arc.setAttribute("stroke-dashoffset", String(finalOffset));
 			});
 		}
 	}
@@ -409,15 +426,21 @@ class ProjectTabs extends HTMLElement {
 			}
 			const left = activeTab.offsetLeft;
 			const width = activeTab.offsetWidth;
-			indicator.style.transform = `translateX(${left}px) scaleX(${width / totalWidth})`;
+			const transform = `translateX(${left}px) scaleX(${width / totalWidth})`;
+			if (this.#indicatorRule !== null) {
+				this.#indicatorRule.style.transform = transform;
+			} else {
+				// Safari ≤ 16.3 fallback — adoptedStyleSheets unavailable there.
+				indicator.style.transform = transform;
+			}
 		};
 
 		if (!animate) {
-			indicator.style.transition = "none";
+			indicator.classList.add("project-tabs__indicator--no-transition");
 			requestAnimationFrame(() => {
 				doMove();
 				requestAnimationFrame(() => {
-					indicator.style.transition = "";
+					indicator.classList.remove("project-tabs__indicator--no-transition");
 				});
 			});
 		} else {

@@ -156,6 +156,10 @@
 	color: var(--hyper-footer-text);
 }
 
+.project-tabs__indicator--no-transition {
+	transition: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.project-tabs__tab {
 		transition: none;
